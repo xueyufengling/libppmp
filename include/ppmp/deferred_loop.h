@@ -50,11 +50,11 @@
 #define __for_deferred‌__(expand_id, begin_idx, end_idx, op_macro, ...) __full_scan__(expand_id)(__for_deferred‌_intl__(begin_idx, begin_idx, end_idx, op_macro, __VA_ARGS__))
 
 // 递归展开参数列表的首参数来迭代每个元素
-#define __for_each_deferred‌_intl__(i, end_idx, expand_macro, expand_params, e, ...)\
+#define __for_each_deferred‌_intl__(i, end_idx, expand_macro, const_params, e, ...)\
 	__if_intl__(__not_equal__(i, end_idx))\
 	(\
-		expand_macro(i, end_idx, e, expand_params)\
-		__2_pass_alias__(__alias_for_each_deferred‌_intl__)(__inc__(i), end_idx, expand_macro, __pack_list_deferred__(2)(expand_params), __VA_ARGS__)\
+		expand_macro(i, 0, end_idx, const_params, e)\
+		__2_pass_alias__(__alias_for_each_deferred‌_intl__)(__inc__(i), end_idx, expand_macro, __pack_list_deferred__(2)(const_params), __VA_ARGS__)\
 	)
 #define __alias_for_each_deferred‌_intl__() __for_each_deferred‌_intl__
 /**
@@ -63,6 +63,6 @@
  * 		  注：使用__full_scan__(...)多次扫描确保展开每一次宏递归
  * 		  且该迭代未使用__at__(n)访问，而是直接迭代展开首参数
  */
-#define __for_each_deferred‌__(expand_id, expand_macro, expand_params, ...) __full_scan__(expand_id)(__for_each_deferred‌_intl__(0, __numof__(__VA_ARGS__), expand_macro, __pack_list__(expand_params), __VA_ARGS__))
+#define __for_each_deferred‌__(expand_id, expand_macro, const_params, ...) __full_scan__(expand_id)(__for_each_deferred‌_intl__(0, __numof__(__VA_ARGS__), expand_macro, __pack_list__(const_params), __VA_ARGS__))
 
 #endif//_PPMP_DEFERREDLOOP

@@ -53,7 +53,7 @@
 #define __inverse_deferred__(expand_id, ...) __full_scan__(expand_id)(__inverse_deferred_intl__(__numof__(__VA_ARGS__), __VA_ARGS__))
 
 //替换
-#define __replace_at_deferred_op_intl__(i, end_idx, e, target_idx, replace_value)\
+#define __replace_at_deferred_op_intl__(i, begin_idx, end_idx, target_idx, replace_value, e)\
 	__if_else_intl__(__not_equal__(i, target_idx))\
 	(\
 		__if_else_intl__(__not_equal__(i, __dec__(end_idx)))\

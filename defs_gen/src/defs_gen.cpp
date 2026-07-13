@@ -1,12 +1,13 @@
+#include "defs_gen.h"
+
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <sstream>
 
 /**
  * 生成defs/catn.h
  */
-void catn_gen(const std::string& path, int n)
+void ppmp::catn_gen(const std::string& path, int n)
 {
 	if(n < 1)
 	{
@@ -64,7 +65,7 @@ void catn_gen(const std::string& path, int n)
 /**
  * 生成defs/full_scan.h
  */
-void full_scan_gen(const std::string& path, int n = 16, int max_level = 16)
+void ppmp::full_scan_gen(const std::string& path, int n, int max_level)
 {
 	std::ofstream file(path);
 	if(!file.is_open())
@@ -92,7 +93,7 @@ void full_scan_gen(const std::string& path, int n = 16, int max_level = 16)
  * 生成defs/inc.h
  * 正溢出结果变为最小值‌
  */
-void inc_gen(const std::string& path, int n)
+void ppmp::inc_gen(const std::string& path, int n)
 {
 	if(n < 0)
 	{
@@ -137,7 +138,7 @@ void inc_gen(const std::string& path, int n)
  * 生成defs/dec.h
  * 负溢出结果变为最大值
  */
-void dec_gen(const std::string& path, int n)
+void ppmp::dec_gen(const std::string& path, int n)
 {
 	if(n < 0)
 	{
@@ -187,7 +188,7 @@ void dec_gen(const std::string& path, int n)
  * 生成defs/at.h
  * 按索引取参数
  */
-void at_gen(const std::string& path, int n)
+void ppmp::at_gen(const std::string& path, int n)
 {
 	if(n < 0)
 	{
@@ -229,7 +230,7 @@ void at_gen(const std::string& path, int n)
  * 生成defs/list_front.h
  * 生成__list_front__N系列宏，取列表前N个元素
  */
-void list_front_gen(const std::string& path, int n)
+void ppmp::list_front_gen(const std::string& path, int n)
 {
 	if(n < 0)
 	{
@@ -279,7 +280,7 @@ void list_front_gen(const std::string& path, int n)
  * 生成defs/list_rest.h
  * 生成__list_rest__N系列宏，取列表去掉前N个元素后的剩余部分
  */
-void list_rest_gen(const std::string& path, int n)
+void ppmp::list_rest_gen(const std::string& path, int n)
 {
 	if(n < 0)
 	{
@@ -319,7 +320,7 @@ void list_rest_gen(const std::string& path, int n)
  * 生成defs/placeholders.h
  * 生成占位符标记列表和数量列表
  */
-void placeholders_gen(const std::string& path, int n)
+void ppmp::placeholders_gen(const std::string& path, int n)
 {
 	if(n < 0)
 	{
@@ -402,7 +403,7 @@ void placeholders_gen(const std::string& path, int n)
  * 生成defs/alias.h
  * 生成递归宏使用的别名
  */
-void alias_gen(const std::string& path, int n)
+void ppmp::alias_gen(const std::string& path, int n)
 {
 	if(n < 0)
 	{
@@ -438,7 +439,7 @@ void alias_gen(const std::string& path, int n)
  * 生成defs/num_equal.h
  * 数值的相等判定
  */
-void num_equal_gen(const std::string& path, int n)
+void ppmp::num_equal_gen(const std::string& path, int n)
 {
 	if(n < 0)
 	{
@@ -475,7 +476,7 @@ void num_equal_gen(const std::string& path, int n)
  * 生成__for_each_n_intl__level系列宏
  * n从0到n，level从0到max_level
  */
-void for_each_gen(const std::string& path, int n, int max_level)
+void ppmp::for_each_gen(const std::string& path, int n, int max_level)
 {
 	if(n < 0 || max_level < 0)
 	{
@@ -528,7 +529,7 @@ void for_each_gen(const std::string& path, int n, int max_level)
  * 生成__for_n_intl__level系列宏
  * n从0到n，level从0到max_level
  */
-void for_gen(const std::string& path, int n, int max_level)
+void ppmp::for_gen(const std::string& path, int n, int max_level)
 {
 	if(n < 0 || max_level < 0)
 	{
@@ -581,7 +582,7 @@ void for_gen(const std::string& path, int n, int max_level)
  * 生成__while_n_intl__level系列宏
  * n从0到n，level从0到max_level
  */
-void while_gen(const std::string& path, int n, int max_level)
+void ppmp::while_gen(const std::string& path, int n, int max_level)
 {
 	if(n < 0 || max_level < 0)
 	{
@@ -634,7 +635,7 @@ void while_gen(const std::string& path, int n, int max_level)
  * 生成__for_recursive_n_intl__level系列宏
  * n从0到n，level从0到max_level
  */
-void for_recursive_gen(const std::string& path, int n, int max_level)
+void ppmp::for_recursive_gen(const std::string& path, int n, int max_level)
 {
 	if(n < 0 || max_level < 0)
 	{
@@ -693,7 +694,7 @@ void for_recursive_gen(const std::string& path, int n, int max_level)
  * 生成__while_recursive_n_intl__level系列宏
  * n从0到n，level从0到max_level
  */
-void while_recursive_gen(const std::string& path, int n, int max_level)
+void ppmp::while_recursive_gen(const std::string& path, int n, int max_level)
 {
 	if(n < 0 || max_level < 0)
 	{
@@ -744,29 +745,4 @@ void while_recursive_gen(const std::string& path, int n, int max_level)
 	}
 	file << "\n#endif";
 	file.close();
-}
-
-int main()
-{
-	const int max_num = 65535; //最大数字
-	const int max_arg = 1024; //最大参数个数
-	const int recursive_depth = 256;
-	std::string output_dir = "D:/libppmp/include/ppmp/defs/";
-	catn_gen(output_dir + "catn.h", max_arg);
-	full_scan_gen(output_dir + "full_scan.h");
-	inc_gen(output_dir + "inc.h", max_num);
-	dec_gen(output_dir + "dec.h", max_num);
-	at_gen(output_dir + "at.h", max_arg);
-	placeholders_gen(output_dir + "placeholders.h", max_arg);
-	alias_gen(output_dir + "alias.h", max_arg);
-	num_equal_gen(output_dir + "num_equal.h", max_num);
-	//循环宏
-	for_each_gen(output_dir + "for_each.h", recursive_depth, max_arg);
-	for_gen(output_dir + "for.h", recursive_depth, max_arg);
-	while_gen(output_dir + "while.h", recursive_depth, max_arg);
-	for_recursive_gen(output_dir + "for_recursive.h", recursive_depth, max_arg);
-	while_recursive_gen(output_dir + "while_recursive.h", recursive_depth, max_arg);
-	list_front_gen(output_dir + "list_front.h", max_arg);
-	list_rest_gen(output_dir + "list_rest.h", max_arg);
-	return 0;
 }
