@@ -21,7 +21,7 @@ int main()
 	placeholders_gen(output_dir + "placeholders.h", list_max_size);
 	list_front_gen(output_dir + "list_front.h", list_max_size);
 	list_rest_gen(output_dir + "list_rest.h", list_max_size);
-	alias_gen(output_dir + "alias.h", list_max_size);
+	defer_gen(output_dir + "defer.h", list_max_size);
 	//循环宏
 	for_each_gen(output_dir + "for_each.h", alias_overload, recursive_depth);
 	for_gen(output_dir + "for.h", alias_overload, recursive_depth);

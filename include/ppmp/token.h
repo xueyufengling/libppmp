@@ -2,7 +2,7 @@
 #define _PPMP_TOKEN
 
 #include "defs/cat_noexp.h"
-#include "defs/alias.h"
+#include "defs/defer.h"
 #include "defs/full_scan.h"
 
 /**
@@ -42,7 +42,7 @@
 
 /**
  * @brief 当一个参数位传入一个','分隔的参数列表时，将该参数用此宏包围，如果需要将此列表作为一个整体传递给其他宏的单个参数，则在传入时需要将列表用此宏包围，即保留参数的列表性质
- * 		  原理：如果一个宏接收多个参数，那么该宏经过展开即便有','分隔符也视作单个参数，因此可以将参数列表打包成单个参数。直接使用__VA_ARGS__是展开的，展开的每个参数都占一个参数位，如果不希望展开则使用__pack_list__(__VA_ARGS__)，其仍然只占一个参数位
+ * 		  原理：多个token以','为分隔符时，若将用()将这些token全部包围，则它们整体视作单个参数，因此可以将参数列表打包成单个参数。直接使用__VA_ARGS__是展开的，展开的每个参数都占一个参数位，如果不希望展开则使用__pack_list__(__VA_ARGS__)，其仍然只占一个参数位
  * 		  注意！当递归宏中使用__pack_list__()时，__pack_list__宏本身也必须要延迟展开，否则提前展开就不是打包了，而是作为多个参数依次传入，如M(x, y)中必须用
  * 		  __2_pass_alias__(__alias_M__)(x, __pack_list_deferred__(2)(1, 2))
  * 		  而不能用
@@ -75,18 +75,45 @@
 #define __double_hash__(...) __cat__(2, __hash_token__, __hash_token__)
 
 /**
- * @brief 仅在宏递归展开中使用，将本宏额外展开一次可以得到目标宏。需要额外展开n次才能得到目标宏
+ * @brief 延迟展开宏，需要额外n_pass次扫描才能展开。
+ * 		  用例：
+ * 		  #define M(x) x
+ * 		  需要使用__scan__(__scan__(__defer__(2)(M)(0)))才能将其展开为0.
+ * 		  扫描展开的步骤，考虑
+ * 		  #define X() x
+ * 		  #define Y() X() y X()
+ * 		  那么展开Y()得到的结果是x y x，这是由于X() y X()是在同一次展开中形成的，因而两处X()都隶属于同一个token流（即Y()展开的流），同一个token流中X与()在未展开时连续相邻时就能继续展开。
+ * 		  但如果是
+ * 		  #define X() x
+ * 		  #define Y() X() y X __empty__()()
+ * 		  即在X与()中插入空宏，导致它们不连续相邻，那么展开Y()得到的结果是x y X()。
+ * 		  原因：扫描到X时后续无(，故不视为宏调用，扫描指针继续移动。扫描到后续__empty__()展开为空，此时扫描指针位置为
+ * 		  x y X ()
+ * 		       ^
+ * 		  只有当
+ * 		  x y X ()
+ * 		      ^
+ * 		  即从X开始连续扫描到()时才视作宏调用。
+ * 		  由于__empty__()的存在，预处理器在展开完空宏后从()继续扫描，扫描指针不会跳回X处重新扫描，因此一轮扫描无法将后面的X()展开为x
+ *
+ * 		  原理：宏本身的宏体替换是展开主链、宏的每个参数的展开都是各自独立的支链。参数展开发生在宏体替换之前，并且参数展开过程会创建新的展开链，每条展开链都是独立的展开过程。
+ * 		  在同一条展开链上，每次宏进行展开之前，将该宏涂蓝，涂蓝的宏在本次展开过程中不会再展开。
+ */
+#define __defer__(n_pass) __cat__(2, __defer__, n_pass)
+
+/**
+ * @brief 仅在宏递归展开中使用，通过展开别名宏得到目标宏。需要额外展开n次才能得到目标宏。
  * 		  在目标宏（__VA_ARGS__参数传入目标宏的别名，不能直接传入目标宏本身，否则会被标记不展开）与其参数列表之间插入一个空内容的__empty__()宏，使得目标宏及其参数的解析必须延迟到下一次__scan___(。。。)时才能将__empty__()消除并展开目标宏
  * 		  宏的间接名称的定义必须是目标宏名，例如目标宏为
  * 		  #define target(x, y) (x + y)
  * 		  那么还需要定义一个别名
- * 		  #define __alias__target() target
- * 		  使用时将别名作为参数，即__1_pass_alias__(__alias__target)(...)
+ * 		  #define __alias_target__() target
+ * 		  使用时将别名作为参数，即__pass_alias__(1, __alias_target__)(...)
  * 		  在本宏的直接展开中，展开的结果将不会包含目标宏名，只有别名，而别名可在第二次扫描展开时展开为目标宏
  *
- * 		  延迟展开的递归宏的定义中，不要有使用另一个递归宏，否则展开时可能因涂蓝导致无法展开，使得宏与参数对不上，甚至出现拼接错误的混乱token，非常难排查问题
+ * 		  延迟展开的递归宏的定义中，如果要使用另一个递归宏，一定要注意__full_scan__(n)必须不同，否则展开时可能因涂蓝导致无法展开，使得宏与参数对不上，甚至出现拼接错误的混乱token，非常难排查问题
  */
-#define __pass_alias__(n) __cat__(3, __, n, _pass_alias__)
+#define __pass_alias__(n_pass, macro_alias) __defer__(n_pass)(macro_alias)()
 
 /**
  * @brief full scan函数族的作用均为，足够多次地重复扫描参数，确保传入参数的完全展开
@@ -110,13 +137,13 @@
 /**
  * @brief 选择第n个__full_scan_n__()宏，n不同时，对应的扫描宏名不同，但都是扫描功能完全相同。只用于防止嵌套递归时full scan递归重入。
  */
-#define __full_scan_with_level__(n, level) __cat__(4, __full_scan_, n, _intl__, level)
-#define __full_scan__(n) __full_scan_with_level__(n, __full_scan_level__())
+#define __scan_with_level__(n, level) __cat__(4, __full_scan_, n, _intl__, level)
+#define __full_scan__(n) __scan_with_level__(n, __full_scan_level__())
 
-#define __alias_pack_list__() __pack_list__
-#define __pack_list_deferred__(n_pass) __pass_alias__(n_pass)(__alias_pack_list__)
+#define __pack_list_deferred__(n_pass) __defer__(n_pass)(__pack_list__)
 
-#define __alias_forward__() __forward__
-#define __forward_deferred__(n_pass) __pass_alias__(n_pass)(__alias_forward__)
+#define __forward_deferred__(n_pass) __defer__(n_pass)(__forward__)
+
+#define __call__(macro_name, ...) macro_name(__VA_ARGS__)
 
 #endif//_PPMP_TOKEN

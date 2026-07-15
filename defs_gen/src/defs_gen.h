@@ -29,8 +29,8 @@ void list_rest_gen(const std::string& path, int n);
 // 生成 defs/placeholders.h
 void placeholders_gen(const std::string& path, int n);
 
-// 生成 defs/alias.h
-void alias_gen(const std::string& path, int n);
+// 生成 defs/defer.h
+void defer_gen(const std::string& path, int pass);
 
 // 生成 defs/num_equal.h
 void num_equal_gen(const std::string& path, int n);

@@ -11,7 +11,7 @@
 	__if_intl__(__not_equal__(i, __dec(count)))\
 	(\
 		expand_macro(i, count, __VA_ARGS__)\
-		__2_pass_alias__(__alias_repeat_intl__)(__inc__(i), count, expand_macro, __VA_ARGS__)\
+		__pass_alias__(2, __alias_repeat_intl__)(__inc__(i), count, expand_macro, __VA_ARGS__)\
 	)
 #define __alias_repeat_intl__() __repeat_intl__
 /**
@@ -21,12 +21,12 @@
  */
 #define __repeat__(expand_id, count, expand_macro, ...) __full_scan__(expand_id)(__repeat_intl__(0, count, expand_macro, __VA_ARGS__))
 
-// cond_params实际上可能是__forward__()打包的参数，因此在传递时必须要再次打包，防止在__2_pass_alias__()递归时展开导致后续参数错位
+// cond_params实际上可能是__forward__()打包的参数，因此在传递时必须要再次打包，防止在__pass_alias__(2, )递归时展开导致后续参数错位
 #define __while_deferred‌_intl__(i, cond_macro, cond_params, expand_macro, ...)\
 	__if__(cond_macro(i, cond_params, __VA_ARGS__))\
 	(\
 		expand_macro(i, cond_params, __VA_ARGS__)\
-		__2_pass_alias__(__alias_while_deferred‌_intl__)(__inc__(i), cond_macro, __pack_list_deferred__(2)(cond_params), expand_macro, __VA_ARGS__)\
+		__pass_alias__(2, __alias_while_deferred‌_intl__)(__inc__(i), cond_macro, __pack_list_deferred__(2)(cond_params), expand_macro, __VA_ARGS__)\
 	)
 #define __alias_while_deferred‌_intl__() __while_deferred‌_intl__
 /**
@@ -40,7 +40,7 @@
 	__if_intl__(__not_equal__(i, end_idx))\
 	(\
 		op_macro(i, begin_idx, end_idx, __VA_ARGS__)\
-		__2_pass_alias__(__alias_for_deferred‌_intl__)(__inc__(i), begin_idx, end_idx, op_macro, __VA_ARGS__)\
+		__pass_alias__(2, __alias_for_deferred‌_intl__)(__inc__(i), begin_idx, end_idx, op_macro, __VA_ARGS__)\
 	)
 #define __alias_for_deferred‌_intl__() __for_deferred‌_intl__
 /**
@@ -53,7 +53,7 @@
 	__if_intl__(__not_equal__(i, end_idx))\
 	(\
 		expand_macro(i, 0, end_idx, const_params, e)\
-		__2_pass_alias__(__alias_for_each_deferred‌_intl__)(__inc__(i), end_idx, expand_macro, __pack_list_deferred__(2)(const_params), __VA_ARGS__)\
+		__pass_alias__(2, __alias_for_each_deferred‌_intl__)(__inc__(i), end_idx, expand_macro, __pack_list_deferred__(2)(const_params), __VA_ARGS__)\
 	)
 #define __alias_for_each_deferred‌_intl__() __for_each_deferred‌_intl__
 /**

@@ -16,7 +16,7 @@
 			__append_comma__(__VA_ARGS__),\
 			__pack_list__(__VA_ARGS__)\
 		)\
-		__2_pass_alias__(__alias_repeat_token_deferred_intl__)(__dec__(i), __VA_ARGS__)\
+		__pass_alias__(2, __alias_repeat_token_deferred_intl__)(__dec__(i), __VA_ARGS__)\
 	)
 #define __alias_repeat_token_deferred_intl__() __repeat_token_deferred_intl__
 #define __repeat_token_deferred__(expand_id, count, ...) __full_scan__(expand_id)(__repeat_token_deferred_intl__(count, __VA_ARGS__))
@@ -26,7 +26,7 @@
 	(\
 		__if_else_intl__(__not_equal__(params_num, 1))\
 		(\
-			__3_pass_alias__(__alias_cat_list_deferred_intl__)(__dec__(params_num), delim, __cat__(3, result, cat_list_deferred_param, delim), __VA_ARGS__),\
+			__pass_alias__(3, __alias_cat_list_deferred_intl__)(__dec__(params_num), delim, __cat__(3, result, cat_list_deferred_param, delim), __VA_ARGS__),\
 			__cat__(2, result, cat_list_deferred_param)\
 		)\
 	)
@@ -47,7 +47,7 @@
 		(\
 			__comma__()\
 		)\
-		__2_pass_alias__(__alias_inverse_deferred_intl__)(__dec__(params_num), __VA_ARGS__)\
+		__pass_alias__(2, __alias_inverse_deferred_intl__)(__dec__(params_num), __VA_ARGS__)\
 	)
 #define __alias_inverse_deferred_intl__() __inverse_deferred_intl__
 #define __inverse_deferred__(expand_id, ...) __full_scan__(expand_id)(__inverse_deferred_intl__(__sizeof__(__VA_ARGS__), __VA_ARGS__))
@@ -83,29 +83,27 @@
 #define __replace_delim_deferred__(expand_id, delim, ...) __for_deferred‌__(expand_id, 0, __sizeof__(__VA_ARGS__), __replace_delim_deferred_op_intl__, delim, __VA_ARGS__)
 
 //指定索引自增
-#define __inc_at_deferred__(idx, ...) __replace_at_deferred__(expand_id, idx, __inc__(__at__(idx)(__VA_ARGS__)), __VA_ARGS__)
+#define __inc_at_deferred__(expand_id, idx, ...) __replace_at_deferred__(expand_id, idx, __inc__(__at__(idx)(__VA_ARGS__)), __VA_ARGS__)
 
 //指定索引自减
-#define __dec_at_deferred__(idx, ...) __replace_at_deferred__(expand_id, idx, __dec__(__at__(idx)(__VA_ARGS__)), __VA_ARGS__)
+#define __dec_at_deferred__(expand_id, idx, ...) __replace_at_deferred__(expand_id, idx, __dec__(__at__(idx)(__VA_ARGS__)), __VA_ARGS__)
 
 //自增n次
 #define __incn_deferred_intl__(i, n, x)\
     __if_else_intl__(__not_equal__(i, n))\
     (\
-        __2_pass_alias__(__alias_incn_deferred_intl__)(__inc__(i), n, __inc__(x)),\
+        __pass_alias__(2, __incn_deferred_intl__)(__inc__(i), n, __inc__(x)),\
         x\
     )
-#define __alias_incn_deferred_intl__() __incn_deferred_intl__
 #define __incn_deferred__(expand_id, n, x) __full_scan__(expand_id)(__incn_deferred_intl__(0, n, x))
 
 //自减n次
 #define __decn_deferred_intl__(i, n, x)\
     __if_else_intl__(__not_equal__(i, n))\
     (\
-        __2_pass_alias__(__alias_decn_deferred_intl__)(__inc__(i), n, __dec(x)),\
+        __pass_alias__(2, __decn_deferred_intl__)(__inc__(i), n, __dec(x)),\
         x\
     )
-#define __alias_decn_deferred_intl__() __decn_deferred_intl__
 #define __decn_deferred__(expand_id, n, x) __full_scan__(expand_id)(__decn_deferred_intl__(0, n, x))
 
 //使用多级展开的实现，速度慢，用于复杂嵌套中的展开求值

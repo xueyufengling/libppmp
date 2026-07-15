@@ -395,14 +395,14 @@ void ppmp::placeholders_gen(const std::string& path, int n)
 }
 
 /**
- * 生成defs/alias.h
- * 生成递归宏使用的别名
+ * 生成defs/defer.h
+ * 生成__defer__N系列宏，用于延迟展开
  */
-void ppmp::alias_gen(const std::string& path, int n)
+void ppmp::defer_gen(const std::string& path, int pass)
 {
-	if(n < 0)
+	if(pass < 0)
 	{
-		std::cerr << "n must be >= 0" << std::endl;
+		std::cerr << "pass must be >= 0" << std::endl;
 		return;
 	}
 	std::ofstream file(path);
@@ -411,20 +411,13 @@ void ppmp::alias_gen(const std::string& path, int n)
 		std::cerr << "failed to open file: " << path << std::endl;
 		return;
 	}
-	file << "#ifndef _PPMP_DEFS_ALIAS\n";
-	file << "#define _PPMP_DEFS_ALIAS\n\n";
-	file << "#define __0_pass_alias__(...) __VA_ARGS__\n";
-	for(int i = 1; i <= n; ++i)
+	file << "#ifndef _PPMP_DEFS_DEFER\n";
+	file << "#define _PPMP_DEFS_DEFER\n\n";
+	file << "#define __defer__0(...) __VA_ARGS__\n";
+	file << "#define __defer__1(...) __VA_ARGS__ __empty__()\n";
+	for(int i = 2; i <= pass; ++i)
 	{
-		file << "#define __" << i << "_pass_alias__(...) __VA_ARGS__ ";
-		if(i == 1)
-		{
-			file << "__empty__()()\n";
-		}
-		else
-		{
-			file << "__" << (i - 1) << "_pass_alias__(__empty__)()\n";
-		}
+		file << "#define __defer__" << i << "(...) __defer__" << (i - 1) << "(__VA_ARGS__ __empty__)()\n";
 	}
 	file << "\n#endif";
 	file.close();
