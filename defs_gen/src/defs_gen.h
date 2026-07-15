@@ -5,11 +5,11 @@
 
 namespace ppmp
 {
-// 生成 defs/catn.h
-void catn_gen(const std::string& path, int n);
+// 生成 defs/cat_noexp.h
+void cat_noexp_gen(const std::string& path, int n);
 
 // 生成 defs/full_scan.h
-void full_scan_gen(const std::string& path, int n = 16, int max_level = 16);
+void full_scan_gen(const std::string& path, int n, int max_level = 16);
 
 // 生成 defs/inc.h
 void inc_gen(const std::string& path, int n);

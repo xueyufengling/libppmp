@@ -13,6 +13,8 @@
 // 计算数据指针的真实偏移量
 #define __dp2idx__(dp) __inc__(__inc__(dp))
 
+#define __ldcell__(dp, ...) __at__(__dp2idx__(dp))(__VA_ARGS__)
+
 //辅助宏
 
 //设置指令指针
@@ -33,7 +35,7 @@
 
 //获取指令，变长参数列表为状态表
 #define __ldi__(inst_buf, ...)\
-    __at_expand__(__ip__(__VA_ARGS__), inst_buf())
+    __at_exp__(__ip__(__VA_ARGS__), inst_buf())
 
 //设置数据指针
 #define __stdp__(target_dp, ...)\
@@ -45,7 +47,7 @@
 
 //获取数据
 #define __ldd__(...)\
-    __at_expand__(__dp2idx__(__dp__(__VA_ARGS__)), __VA_ARGS__)
+    __at_exp__(__dp2idx__(__dp__(__VA_ARGS__)), __VA_ARGS__)
 
 //存数据
 #define __std__(data, ...)\
@@ -116,12 +118,12 @@
 	__if_else__(__ldd__(__VA_ARGS__))\
 	(\
 		__pack_list__(__VA_ARGS__),\
-		__list_expand_rest__(1,\
+		__list_exp_rest__(1,\
 			__while_recursive__(0)\
 			(\
 				__inst_lpbg_cond_intl__,\
 				__inst_lpbg_op_intl__,\
-				__pack_list__(__numof__(inst_buf()), inst_buf),\
+				__pack_list__(__sizeof__(inst_buf()), inst_buf),\
 				1, __incip__(__VA_ARGS__)\
 			)\
 		)\
@@ -146,12 +148,12 @@
 #define __inst_lped__(inst_buf, ...)\
 	__if_else__(__ldd__(__VA_ARGS__))\
 	(\
-		__list_expand_rest__(1,\
+		__list_exp_rest__(1,\
 			__while_recursive__(1)\
 			(\
 				__inst_lped_cond_intl__,\
 				__inst_lped_op_intl__,\
-				__pack_list__(__numof__(inst_buf()), inst_buf),\
+				__pack_list__(__sizeof__(inst_buf()), inst_buf),\
 				1, __decip__(__VA_ARGS__)\
 			)\
 		),\
@@ -165,7 +167,7 @@
 // __exec__(指令缓冲, IP, DP, 带数据)
 // 执行指令并更新IP、DP，但执行完成后不进行IP自增
 #define __exec__(inst_buf, ...)\
-    __catn__(3)(__inst_, __ldi__(inst_buf, __VA_ARGS__), __)(inst_buf, __VA_ARGS__)
+    __cat__(3, __inst_, __ldi__(inst_buf, __VA_ARGS__), __)(inst_buf, __VA_ARGS__)
 
 #define __zero_tape__(n) __repeat_token_deferred__(0, n, 0)
 
@@ -178,7 +180,7 @@
 #define __run_cond_intl__(i, inst_num, inst_buf, ...) __not_equal__(__ip__(__VA_ARGS__), inst_num)
 #define __run_op_intl__(i, inst_num, inst_buf, ...)\
     1, __incip__(__exec__(inst_buf, __VA_ARGS__))
-#define __run__(inst_buf, ip, dp, ...) __while_recursive__(2)(__run_cond_intl__, __run_op_intl__, __pack_list__(__numof__(inst_buf()), inst_buf), ip, dp, __VA_ARGS__)
+#define __run__(inst_buf, ip, dp, ...) __while_recursive__(2)(__run_cond_intl__, __run_op_intl__, __pack_list__(__sizeof__(inst_buf()), inst_buf), ip, dp, __VA_ARGS__)
 
 //执行指定次数
 #define __step_op_intl__(i, begin_idx, end_idx, inst_buf, ...)\

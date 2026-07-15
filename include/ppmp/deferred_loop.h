@@ -1,7 +1,6 @@
 #ifndef _PPMP_DEFERREDLOOP
 #define _PPMP_DEFERREDLOOP
 
-#include "catn.h"
 #include "base.h"
 #include "equal.h"
 
@@ -22,7 +21,7 @@
  */
 #define __repeat__(expand_id, count, expand_macro, ...) __full_scan__(expand_id)(__repeat_intl__(0, count, expand_macro, __VA_ARGS__))
 
-// cond_params实际上可能是__pack_list__()打包的参数，因此在传递时必须要再次打包，防止在__2_pass_alias__()递归时展开导致后续参数错位
+// cond_params实际上可能是__forward__()打包的参数，因此在传递时必须要再次打包，防止在__2_pass_alias__()递归时展开导致后续参数错位
 #define __while_deferred‌_intl__(i, cond_macro, cond_params, expand_macro, ...)\
 	__if__(cond_macro(i, cond_params, __VA_ARGS__))\
 	(\
@@ -34,7 +33,7 @@
  * @brief 循环cond_macro指定的宏直到条件为false
  * 		  宏的形式为cond_macro(...)，其中变长参数列表为传入传入cond_params的参数
  */
-#define __while_deferred‌__(expand_id, cond_macro, cond_params, expand_macro, ...) __full_scan__(expand_id)(__while_deferred‌_intl__(0, cond_macro, __pack_list__(cond_params), expand_macro, __VA_ARGS__))
+#define __while_deferred‌__(expand_id, cond_macro, cond_params, expand_macro, ...) __full_scan__(expand_id)(__while_deferred‌_intl__(0, cond_macro, __forward__(cond_params), expand_macro, __VA_ARGS__))
 
 // op_macro第一个参数必须是当前索引，第二个参数必须是起始索引，第三个参数必须是终止索引（不包含）
 #define __for_deferred‌_intl__(i, begin_idx, end_idx, op_macro, ...)\
@@ -63,6 +62,6 @@
  * 		  注：使用__full_scan__(...)多次扫描确保展开每一次宏递归
  * 		  且该迭代未使用__at__(n)访问，而是直接迭代展开首参数
  */
-#define __for_each_deferred‌__(expand_id, expand_macro, const_params, ...) __full_scan__(expand_id)(__for_each_deferred‌_intl__(0, __numof__(__VA_ARGS__), expand_macro, __pack_list__(const_params), __VA_ARGS__))
+#define __for_each_deferred‌__(expand_id, expand_macro, const_params, ...) __full_scan__(expand_id)(__for_each_deferred‌_intl__(0, __sizeof__(__VA_ARGS__), expand_macro, __forward__(const_params), __VA_ARGS__))
 
 #endif//_PPMP_DEFERREDLOOP

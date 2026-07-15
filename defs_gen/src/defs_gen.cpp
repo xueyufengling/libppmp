@@ -5,9 +5,9 @@
 #include <sstream>
 
 /**
- * 生成defs/catn.h
+ * 生成defs/cat_noexp.h
  */
-void ppmp::catn_gen(const std::string& path, int n)
+void ppmp::cat_noexp_gen(const std::string& path, int n)
 {
 	if(n < 1)
 	{
@@ -20,12 +20,12 @@ void ppmp::catn_gen(const std::string& path, int n)
 		std::cerr << "failed to open file: " << path << std::endl;
 		return;
 	}
-	file << "#ifndef _PPMP_DEFS_CATN\n";
-	file << "#define _PPMP_DEFS_CATN\n\n";
-	file << "#define __catn_intl__1(...) __VA_ARGS__\n";
+	file << "#ifndef _PPMP_DEFS_CATNOEXP\n";
+	file << "#define _PPMP_DEFS_CATNOEXP\n\n";
+	file << "#define __cat_noexp__1(...) __VA_ARGS__\n";
 	for(int i = 2; i <= n; ++i)
 	{
-		file << "#define __catn_intl__" << i << "(";
+		file << "#define __cat_noexp__" << i << "(";
 		for(int j = 0; j < i - 1; ++j)
 		{
 			file << "_" << j;
@@ -52,11 +52,6 @@ void ppmp::catn_gen(const std::string& path, int n)
 			file << "##";
 		}
 		file << "__VA_ARGS__\n";
-	}
-	file << "\n";
-	for(int i = 1; i <= n; ++i)
-	{
-		file << "#define __catn__" << i << "(...) __catn_intl__" << i << "(__VA_ARGS__)\n";
 	}
 	file << "\n#endif";
 	file.close();
@@ -203,7 +198,7 @@ void ppmp::at_gen(const std::string& path, int n)
 	}
 	file << "#ifndef _PPMP_DEFS_AT\n";
 	file << "#define _PPMP_DEFS_AT\n\n";
-	file << "#define __at_max_idx__() " << n << "\n\n";
+	file << "#define __list_max_size__() " << n << "\n\n";
 	for(int i = 0; i <= n; ++i)
 	{
 		file << "#define __at__" << i << "(";
@@ -374,7 +369,7 @@ void ppmp::placeholders_gen(const std::string& path, int n)
 		}
 	}
 	file << "\n";
-	file << "#define __numof_placeholders__()\\\n";
+	file << "#define __sizeof_placeholders__()\\\n";
 	for(int i = n; i >= 0; --i)
 	{
 		if(i == n)
@@ -493,8 +488,8 @@ void ppmp::for_each_gen(const std::string& path, int n, int max_level)
 	file << "#define _PPMP_DEFS_FOREACH\n\n";
 	for(int i = 0; i <= n; ++i)
 	{
-		file << "#define __for_each_" << i << "_intl__(expand_macro, const_params, e, ...) ";
-		file << "__for_each_" << i << "_intl__0(__inc__(__numof__(__VA_ARGS__)), expand_macro, __pack_list__(const_params), e, __VA_ARGS__)\n";
+		file << "#define __for_each_" << i << "_intl__(expand_macro, const_params, ...) ";
+		file << "__for_each_" << i << "_intl__0(__sizeof__(__VA_ARGS__), expand_macro, __forward__(const_params), __VA_ARGS__)\n";
 		for(int level = 0; level <= max_level; ++level)
 		{
 			if(level < max_level)
@@ -503,7 +498,7 @@ void ppmp::for_each_gen(const std::string& path, int n, int max_level)
 				file << "\t__if_intl__(__not_equal__(end_idx, " << level << "))\\\n";
 				file << "\t(\\\n";
 				file << "\t\texpand_macro(" << level << ", 0, end_idx, const_params, e)\\\n";
-				file << "\t\t__for_each_" << i << "_intl__" << (level + 1) << "(end_idx, expand_macro, __pack_list__(const_params), __VA_ARGS__)\\\n";
+				file << "\t\t__for_each_" << i << "_intl__" << (level + 1) << "(end_idx, expand_macro, __forward__(const_params), __VA_ARGS__)\\\n";
 				file << "\t)\n";
 			}
 			else
@@ -547,7 +542,7 @@ void ppmp::for_gen(const std::string& path, int n, int max_level)
 	for(int i = 0; i <= n; ++i)
 	{
 		file << "#define __for_" << i << "_intl__(begin_idx, end_idx, expand_macro, const_params, ...) ";
-		file << "__for_" << i << "_intl__0(begin_idx, begin_idx, end_idx, expand_macro, __pack_list__(const_params), __VA_ARGS__)\n";
+		file << "__for_" << i << "_intl__0(begin_idx, begin_idx, end_idx, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
 		for(int level = 0; level <= max_level; ++level)
 		{
 			if(level < max_level)
@@ -556,7 +551,7 @@ void ppmp::for_gen(const std::string& path, int n, int max_level)
 				file << "\t__if_intl__(__not_equal__(i, end_idx))\\\n";
 				file << "\t(\\\n";
 				file << "\t\texpand_macro(begin_idx, end_idx, i, const_params, __VA_ARGS__)\\\n";
-				file << "\t\t__for_" << i << "_intl__" << (level + 1) << "(__inc__(i), begin_idx, end_idx, expand_macro, __pack_list__(const_params), __VA_ARGS__)\\\n";
+				file << "\t\t__for_" << i << "_intl__" << (level + 1) << "(__inc__(i), begin_idx, end_idx, expand_macro, __forward__(const_params), __VA_ARGS__)\\\n";
 				file << "\t)\n";
 			}
 			else
@@ -600,7 +595,7 @@ void ppmp::while_gen(const std::string& path, int n, int max_level)
 	for(int i = 0; i <= n; ++i)
 	{
 		file << "#define __while_" << i << "_intl__(cond_macro, expand_macro, const_params, ...) ";
-		file << "__while_" << i << "_intl__0(cond_macro, expand_macro, __pack_list__(const_params), __VA_ARGS__)\n";
+		file << "__while_" << i << "_intl__0(cond_macro, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
 		for(int level = 0; level <= max_level; ++level)
 		{
 			if(level < max_level)
@@ -609,7 +604,7 @@ void ppmp::while_gen(const std::string& path, int n, int max_level)
 				file << "\t__if__(cond_macro(" << level << ", const_params, __VA_ARGS__))\\\n";
 				file << "\t(\\\n";
 				file << "\t\texpand_macro(" << level << ", const_params, __VA_ARGS__)\\\n";
-				file << "\t\t__while_" << i << "_intl__" << (level + 1) << "(cond_macro, expand_macro, __pack_list__(const_params), __VA_ARGS__)\\\n";
+				file << "\t\t__while_" << i << "_intl__" << (level + 1) << "(cond_macro, expand_macro, __forward__(const_params), __VA_ARGS__)\\\n";
 				file << "\t)\n";
 			}
 			else
@@ -653,30 +648,30 @@ void ppmp::for_recursive_gen(const std::string& path, int n, int max_level)
 	for(int i = 0; i <= n; ++i)
 	{
 		file << "#define __for_recursive_" << i << "_intl__(begin_idx, end_idx, expand_macro, const_params, ...) ";
-		file << "__for_recursive_" << i << "__0(begin_idx, begin_idx, end_idx, expand_macro, __pack_list__(const_params), 1, __VA_ARGS__)\n";
+		file << "__for_recursive_" << i << "__0(begin_idx, begin_idx, end_idx, expand_macro, __forward__(const_params), 1, __VA_ARGS__)\n";
 		for(int level = 0; level <= max_level; ++level)
 		{
 			if(level < max_level)
 			{
 				file << "#define __for_recursive_" << i << "__" << level << "(i, begin_idx, end_idx, expand_macro, const_params, ...) ";
-				file << "__for_recursive_" << i << "_intl__" << level << "(i, begin_idx, end_idx, expand_macro, __pack_list__(const_params), __VA_ARGS__)\n";
+				file << "__for_recursive_" << i << "_intl__" << level << "(i, begin_idx, end_idx, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
 				file << "#define __for_recursive_" << i << "_intl__" << level << "(i, begin_idx, end_idx, expand_macro, const_params, continue_iter, ...)\\\n";
 				file << "\t__if_else_intl__(__and__(continue_iter, __not_equal__(i, end_idx)))\\\n";
 				file << "\t(\\\n";
 				//将expand_macro()的值展开后再传入下一次迭代，防止它作为一个整体被赋值给continue_iter
-				file << "\t\t__for_recursive_" << i << "__" << (level + 1) << "(__inc__(i), begin_idx, end_idx, expand_macro, __pack_list__(const_params), expand_macro(i, begin_idx, end_idx, const_params, __VA_ARGS__)),\\\n";
-				file << "\t\t__pack_list__(__VA_ARGS__)\\\n";
+				file << "\t\t__for_recursive_" << i << "__" << (level + 1) << "(__inc__(i), begin_idx, end_idx, expand_macro, __forward__(const_params), expand_macro(i, begin_idx, end_idx, const_params, __VA_ARGS__)),\\\n";
+				file << "\t\t__VA_ARGS__\\\n";
 				file << "\t)\n";
 			}
 			else
 			{
 				file << "#define __for_recursive_" << i << "__" << max_level << "(i, begin_idx, end_idx, expand_macro, const_params, ...) ";
-				file << "__for_recursive_" << i << "_intl__" << max_level << "(i, begin_idx, end_idx, expand_macro, __pack_list__(const_params), __VA_ARGS__)\n";
+				file << "__for_recursive_" << i << "_intl__" << max_level << "(i, begin_idx, end_idx, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
 				file << "#define __for_recursive_" << i << "_intl__" << max_level << "(i, begin_idx, end_idx, expand_macro, const_params, continue_iter, ...)\\\n";
 				file << "\t__if_else_intl__(__and__(continue_iter, __not_equal__(i, end_idx)))\\\n";
 				file << "\t(\\\n";
 				file << "\t\tFOR_RECURSIVE_" << i << "_OUT_OF_RANGE,\\\n";
-				file << "\t\t__pack_list__(__VA_ARGS__)\\\n";
+				file << "\t\t__VA_ARGS__\\\n";
 				file << "\t)\n";
 			}
 		}
@@ -712,29 +707,29 @@ void ppmp::while_recursive_gen(const std::string& path, int n, int max_level)
 	for(int i = 0; i <= n; ++i)
 	{
 		file << "#define __while_recursive_" << i << "_intl__(cond_macro, expand_macro, const_params, ...) ";
-		file << "__while_recursive_" << i << "__0(cond_macro, expand_macro, __pack_list__(const_params), 1, __VA_ARGS__)\n";
+		file << "__while_recursive_" << i << "__0(cond_macro, expand_macro, __forward__(const_params), 1, __VA_ARGS__)\n";
 		for(int level = 0; level <= max_level; ++level)
 		{
 			if(level < max_level)
 			{
 				file << "#define __while_recursive_" << i << "__" << level << "(cond_macro, expand_macro, const_params, ...) ";
-				file << "__while_recursive_" << i << "_intl__" << level << "(cond_macro, expand_macro, __pack_list__(const_params), __VA_ARGS__)\n";
+				file << "__while_recursive_" << i << "_intl__" << level << "(cond_macro, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
 				file << "#define __while_recursive_" << i << "_intl__" << level << "(cond_macro, expand_macro, const_params, continue_iter, ...)\\\n";
 				file << "\t__if_else_intl__(__and__(continue_iter, cond_macro(" << level << ", const_params, __VA_ARGS__)))\\\n";
 				file << "\t(\\\n";
-				file << "\t\t__while_recursive_" << i << "__" << (level + 1) << "(cond_macro, expand_macro, __pack_list__(const_params), expand_macro(" << level << ", const_params, __VA_ARGS__)),\\\n";
-				file << "\t\t__pack_list__(__VA_ARGS__)\\\n";
+				file << "\t\t__while_recursive_" << i << "__" << (level + 1) << "(cond_macro, expand_macro, __forward__(const_params), expand_macro(" << level << ", const_params, __VA_ARGS__)),\\\n";
+				file << "\t\t__VA_ARGS__\\\n";
 				file << "\t)\n";
 			}
 			else
 			{
 				file << "#define __while_recursive_" << i << "__" << max_level << "(cond_macro, expand_macro, const_params, ...) ";
-				file << "__while_recursive_" << i << "_intl__" << max_level << "(cond_macro, expand_macro, __pack_list__(const_params), __VA_ARGS__)\n";
+				file << "__while_recursive_" << i << "_intl__" << max_level << "(cond_macro, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
 				file << "#define __while_recursive_" << i << "_intl__" << max_level << "(cond_macro, expand_macro, const_params, continue_iter, ...)\\\n";
 				file << "\t__if_else_intl__(__and__(continue_iter, cond_macro(" << max_level << ", const_params, __VA_ARGS__)))\\\n";
 				file << "\t(\\\n";
 				file << "\t\tWHILE_RECURSIVE_" << i << "_OUT_OF_RANGE,\\\n";
-				file << "\t\t__pack_list__(__VA_ARGS__)\\\n";
+				file << "\t\t__VA_ARGS__\\\n";
 				file << "\t)\n";
 			}
 		}

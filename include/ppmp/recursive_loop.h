@@ -1,7 +1,6 @@
 #ifndef _PPMP_RECURSIVELOOP
 #define _PPMP_RECURSIVELOOP
 
-#include "catn.h"
 #include "base.h"
 #include "equal.h"
 #include "arith.h"
@@ -25,7 +24,7 @@
  * 		  expand_macro第一个参数必须是起始索引，第二个参数必须是终止索引（不包含），第三个参数必须是当前索引，第四个参数必须是expand_macro()所需的额外参数，迭代过程为
  * 		  expand_macro(begin_idx, end_idx, current_idx, const_params, expand_macro(begin_idx, end_idx, current_idx, const_params, elements...))
  */
-#define __for_recursive__(expand_id) __catn__(3)(__for_recursive_, expand_id, _intl__)
+#define __for_recursive__(expand_id) __cat__(3, __for_recursive_, expand_id, _intl__)
 
 /**
  * @brief 循环直到条件cond_macro(i, const_params, __VA_ARGS__)不满足，使用方法为
@@ -33,6 +32,6 @@
  * 		  const_params()、expand_macro()第一个参数必须是当前索引，第二个参数必须是const_params，后续参数则为__VA_ARGS__。迭代过程为
  * 		  expand_macro(cond_macro, const_params, expand_macro, expand_macro(i, const_params, const_params...))
  */
-#define __while_recursive__(expand_id) __catn__(3)(__while_recursive_, expand_id, _intl__)
+#define __while_recursive__(expand_id) __cat__(3, __while_recursive_, expand_id, _intl__)
 
 #endif//_PPMP_RECURSIVELOOP

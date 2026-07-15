@@ -1,7 +1,6 @@
 #ifndef _PPMP_EQUAL
 #define _PPMP_EQUAL
 
-#include "catn.h"
 #include "base.h"
 
 #include "defs/num_equal.h"
@@ -9,7 +8,7 @@
 /**
  * @brief 判断是否定义了#define __equal_def__token(x) x 宏，未定义则留下__equal_def__token(())，没有被小括号包围故__in_matched_parenthesis__()宏将其判定为0；如果已经定义，则只留下括号()，判定为1
  */
-#define __equal_defined__(token) __in_matched_parenthesis__(__catn__(2)(__equal_def__, token)(()))
+#define __equal_defined__(token) __in_matched_parenthesis__(__cat__(2, __equal_def__, token)(()))
 
 /**
  * @brief 判断两个符号是否不相同。需要对两个符号m、n分别定义
@@ -21,7 +20,7 @@
 #define __not_equal__(token1, token2)\
 		__if_else_intl__(__and_intl__(__equal_defined__(token1), __equal_defined__(token2)))\
 		(\
-			__in_matched_parenthesis__(__catn__(2)(__equal_def__, token1)(__catn__(2)(__equal_def__, token2))(())),\
+			__in_matched_parenthesis__(__cat__(2, __equal_def__, token1)(__cat__(2, __equal_def__, token2))(())),\
 			1\
 		)
 

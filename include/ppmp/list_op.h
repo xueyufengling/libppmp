@@ -21,22 +21,22 @@
 #define __alias_repeat_token_deferred_intl__() __repeat_token_deferred_intl__
 #define __repeat_token_deferred__(expand_id, count, ...) __full_scan__(expand_id)(__repeat_token_deferred_intl__(count, __VA_ARGS__))
 
-#define __cat_deferred_intl__(params_num, delim, result, cat_deferred_param, ...)\
+#define __cat_list_deferred_intl__(params_num, delim, result, cat_list_deferred_param, ...)\
 	__if_intl__(__not_equal__(params_num, 0))\
 	(\
 		__if_else_intl__(__not_equal__(params_num, 1))\
 		(\
-			__3_pass_alias__(__alias_cat_deferred_intl__)(__dec__(params_num), delim, __catn__(3)(result, cat_deferred_param, delim), __VA_ARGS__),\
-			__catn__(2)(result, cat_deferred_param)\
+			__3_pass_alias__(__alias_cat_list_deferred_intl__)(__dec__(params_num), delim, __cat__(3, result, cat_list_deferred_param, delim), __VA_ARGS__),\
+			__cat__(2, result, cat_list_deferred_param)\
 		)\
 	)
-#define __alias_cat_deferred_intl__() __cat_deferred_intl__
+#define __alias_cat_list_deferred_intl__() __cat_list_deferred_intl__
 /**
  * @brief 拼接任意长度的token，变长参数列表的元素以delim隔开
- * 		  例如__cat_deferred__(_, a, b, c)将会得到a_b_c
+ * 		  例如__cat_list_deferred__(_, a, b, c)将会得到a_b_c
  * 		  原理：使用了宏递归展开，由于外层有__if__()和__if_else__()两个宏包围，因此需要3 pass才能完整展开递归的目标宏
  */
-#define __cat_deferred__(expand_id, delim, ...) __full_scan__(expand_id)(__cat_deferred_intl__(__numof__(__VA_ARGS__), delim, , __VA_ARGS__))
+#define __cat_list_deferred__(expand_id, delim, ...) __full_scan__(expand_id)(__cat_list_deferred_intl__(__sizeof__(__VA_ARGS__), delim, , __VA_ARGS__))
 
 //反转
 #define __inverse_deferred_intl__(params_num, ...)\
@@ -50,7 +50,7 @@
 		__2_pass_alias__(__alias_inverse_deferred_intl__)(__dec__(params_num), __VA_ARGS__)\
 	)
 #define __alias_inverse_deferred_intl__() __inverse_deferred_intl__
-#define __inverse_deferred__(expand_id, ...) __full_scan__(expand_id)(__inverse_deferred_intl__(__numof__(__VA_ARGS__), __VA_ARGS__))
+#define __inverse_deferred__(expand_id, ...) __full_scan__(expand_id)(__inverse_deferred_intl__(__sizeof__(__VA_ARGS__), __VA_ARGS__))
 
 //替换
 #define __replace_at_deferred_op_intl__(i, begin_idx, end_idx, target_idx, replace_value, e)\
@@ -80,7 +80,7 @@
  * @brief 将变长参数列表的每个参数末尾的分隔符','替换为delim，不同参数之间以空格隔开。
  * 		  例如__replace_delim__(, a, b, c)将得到a b c，而__replace_delim__(_, a, b, c)将得到a _ b _ c
  */
-#define __replace_delim_deferred__(expand_id, delim, ...) __for_deferred‌__(expand_id, 0, __numof__(__VA_ARGS__), __replace_delim_deferred_op_intl__, delim, __VA_ARGS__)
+#define __replace_delim_deferred__(expand_id, delim, ...) __for_deferred‌__(expand_id, 0, __sizeof__(__VA_ARGS__), __replace_delim_deferred_op_intl__, delim, __VA_ARGS__)
 
 //指定索引自增
 #define __inc_at_deferred__(idx, ...) __replace_at_deferred__(expand_id, idx, __inc__(__at__(idx)(__VA_ARGS__)), __VA_ARGS__)
