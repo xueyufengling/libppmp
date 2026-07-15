@@ -10,7 +10,7 @@ int main()
 	const int recursive_depth = 256;
 	std::string output_dir = "D:/libppmp/include/ppmp/defs/";
 
-	full_scan_gen(output_dir + "full_scan.h", alias_overload);
+	scan_gen(output_dir + "scan.h", alias_overload);
 	//算术
 	inc_gen(output_dir + "inc.h", max_num);
 	dec_gen(output_dir + "dec.h", max_num);

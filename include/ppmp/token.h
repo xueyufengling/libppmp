@@ -3,7 +3,7 @@
 
 #include "defs/cat_noexp.h"
 #include "defs/defer.h"
-#include "defs/full_scan.h"
+#include "defs/scan.h"
 
 /**
  * token处理
@@ -56,6 +56,8 @@
  * 		  它虽然形式与__pack_list__()一致，但侧重含义不一样，__pack_list__()含义为将多个独立参数打包成一个整体，__forward__()意为将参数包保持整体作为一个参数传递
  */
 #define __forward__(...) __VA_ARGS__
+
+#define __call__(macro_name, ...) macro_name(__VA_ARGS__)
 
 /**
  * 用于表达式或目标宏展开为空的检测
@@ -137,13 +139,13 @@
 /**
  * @brief 选择第n个__full_scan_n__()宏，n不同时，对应的扫描宏名不同，但都是扫描功能完全相同。只用于防止嵌套递归时full scan递归重入。
  */
-#define __scan_with_level__(n, level) __cat__(4, __full_scan_, n, _intl__, level)
-#define __full_scan__(n) __scan_with_level__(n, __full_scan_level__())
+#define __scan_level__(n, level) __cat__(4, __scan_, n, _intl__, level)
+#define __full_scan__(n) __scan_level__(n, __full_scan_level__())
 
 #define __pack_list_deferred__(n_pass) __defer__(n_pass)(__pack_list__)
 
 #define __forward_deferred__(n_pass) __defer__(n_pass)(__forward__)
 
-#define __call__(macro_name, ...) macro_name(__VA_ARGS__)
+#define __call_deferred__(n_pass) __defer__(n_pass)(__call__)
 
 #endif//_PPMP_TOKEN

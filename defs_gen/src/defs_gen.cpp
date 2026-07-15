@@ -60,7 +60,7 @@ void ppmp::cat_noexp_gen(const std::string& path, int n)
 /**
  * 生成defs/full_scan.h
  */
-void ppmp::full_scan_gen(const std::string& path, int n, int max_level)
+void ppmp::scan_gen(const std::string& path, int n, int max_level)
 {
 	std::ofstream file(path);
 	if(!file.is_open())
@@ -68,11 +68,11 @@ void ppmp::full_scan_gen(const std::string& path, int n, int max_level)
 		std::cerr << "failed to open file: " << path << std::endl;
 		return;
 	}
-	file << "#ifndef _PPMP_DEFS_FULLSCAN\n";
-	file << "#define _PPMP_DEFS_FULLSCAN\n\n";
+	file << "#ifndef _PPMP_DEFS_SCAN\n";
+	file << "#define _PPMP_DEFS_SCAN\n\n";
 	for(int i = 0; i < n; ++i)
 	{
-		std::string macro_base = "__full_scan_" + std::to_string(i) + "_intl__";
+		std::string macro_base = "__scan_" + std::to_string(i) + "_intl__";
 		file << "#define " << macro_base << "0(...) __VA_ARGS__\n";
 		for(int level = 1; level <= max_level; ++level)
 		{
