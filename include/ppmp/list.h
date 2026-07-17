@@ -26,20 +26,9 @@
 #define __list_exp_rest__(n, ...) __list_rest__(n)(__VA_ARGS__)
 
 /**
- * 支持检测的列表最大参数个数为__list_max_size__()个
- */
-#define __is_list_intl__(...) __at__(__list_max_size__())(__VA_ARGS__)
-
-/**
  * @brief 获取传入本宏的参数是否是列表，以','隔开
+ * 		  支持检测的列表最大参数个数为__list_max_size__()个
  */
-#define __is_list__(...) __is_list_intl__(__VA_ARGS__, __is_list_placeholders__())
-
-//__sizeof__()中间层将外层宏的__VA_ARGS__, __sizeof_placeholders__()整合为一个参数列表，否则__sizeof_placeholders__()将被视作单个参数而非展开的__list_max_size__()+1个参数
-#define __sizeof_intl__(...) __at__(__list_max_size__())(__VA_ARGS__)
-/**
- * @brief 获取传入本宏的参数展开2次后的个数，最大支持__list_max_size__()个参数
- */
-#define __sizeof__(...) __sizeof_intl__(__VA_ARGS__, __sizeof_placeholders__())
+#define __is_list__(...) __at_exp__(__list_max_size__(), __VA_ARGS__, __is_list_placeholders__())
 
 #endif//_PPMP_LIST

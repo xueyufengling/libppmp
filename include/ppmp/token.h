@@ -60,6 +60,26 @@
 #define __call__(macro_name, ...) macro_name(__VA_ARGS__)
 
 /**
+ * @brief 将目标参数全部展开一次并打包成整体，并且由于外围有()即便内部有','也可以在嵌套的宏传递中保持只占单个参数位
+ */
+#define __pack__(...) (__VA_ARGS__)
+
+/**
+ * @brief 将unpack打包的结果全部解包成列表
+ */
+#define __unpack__(pack) __scan__ pack
+
+/**
+ * @brief 禁止展开
+ */
+#define __no_exp__(...) (__VA_ARGS__)
+
+/**
+ * @brief 继续展开
+ */
+#define __re_exp__(pack) __scan__ pack
+
+/**
  * 用于表达式或目标宏展开为空的检测
  * 用法： 如果写__comma__ xxx ()仅当xxx为空时，才能展开为','，即当xxx为空时，参数的数量会+1，此时可通过参数移位得知是否为空
  */
@@ -73,7 +93,7 @@
 #define __rparen__(...) )
 
 #define __hash_token__ #
-#define __hash__(...) __forward__(__hash_token__)
+#define __hash__(...) __hash_token__
 #define __double_hash__(...) __cat__(2, __hash_token__, __hash_token__)
 
 /**
@@ -147,5 +167,14 @@
 #define __forward_deferred__(n_pass) __defer__(n_pass)(__forward__)
 
 #define __call_deferred__(n_pass) __defer__(n_pass)(__call__)
+
+#define __pack_deferred__(n_pass) __defer__(n_pass)(__pack__)
+
+#define __unpack_deferred__(n_pass) __defer__(n_pass)(__unpack__)
+
+/**
+ * @brief 生成 #pragma ...
+ */
+#define __pragma__(...) _Pragma(__str__(__VA_ARGS__))
 
 #endif//_PPMP_TOKEN
