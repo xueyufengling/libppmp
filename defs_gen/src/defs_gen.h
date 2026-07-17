@@ -9,7 +9,7 @@ namespace ppmp
 void cat_noexp_gen(const std::string& path, int n);
 
 // 生成 defs/full_scan.h
-void scan_gen(const std::string& path, int n, int max_level = 16);
+void scan_gen(const std::string& path, int n, int max_scan_level = 16);
 
 // 生成 defs/inc.h
 void inc_gen(const std::string& path, int n);
@@ -49,6 +49,12 @@ void for_recursive_gen(const std::string& path, int n, int max_level);
 
 // 生成 defs/while_recursive.h
 void while_recursive_gen(const std::string& path, int n, int max_level);
+
+// 生成defs/deferred_loop.h
+void for_each_deferred_gen(const std::string& path, int max_scan_level);
+
+// 生成defs/call_exp.h
+void call_exp_gen(const std::string& path, int n);
 }
 
 #endif//_PPMP_DEFSGEN

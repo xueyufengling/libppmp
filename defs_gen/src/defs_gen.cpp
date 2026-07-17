@@ -60,7 +60,7 @@ void ppmp::cat_noexp_gen(const std::string& path, int n)
 /**
  * 生成defs/full_scan.h
  */
-void ppmp::scan_gen(const std::string& path, int n, int max_level)
+void ppmp::scan_gen(const std::string& path, int n, int max_scan_level)
 {
 	std::ofstream file(path);
 	if(!file.is_open())
@@ -74,7 +74,7 @@ void ppmp::scan_gen(const std::string& path, int n, int max_level)
 	{
 		std::string macro_base = "__scan_" + std::to_string(i) + "_intl__";
 		file << "#define " << macro_base << "0(...) __VA_ARGS__\n";
-		for(int level = 1; level <= max_level; ++level)
+		for(int level = 1; level <= max_scan_level; ++level)
 		{
 			file << "#define " << macro_base << level << "(...) " << macro_base << (level - 1) << "(" << macro_base << (level - 1) << "(__VA_ARGS__))\n";
 		}
@@ -733,4 +733,74 @@ void ppmp::while_recursive_gen(const std::string& path, int n, int max_level)
 	}
 	file << "\n#endif";
 	file.close();
+}
+
+/**
+ * 生成defs/for_each_deferred.h
+ * 生成__for_each_deferred__N系列宏
+ * N从0到max_scan_level
+ */
+void ppmp::for_each_deferred_gen(const std::string& path, int max_scan_level)
+{
+    if(max_scan_level < 0)
+    {
+        std::cerr << "n must be >= 0" << std::endl;
+        return;
+    }
+    std::ofstream file(path);
+    if(!file.is_open())
+    {
+        std::cerr << "failed to open file: " << path << std::endl;
+        return;
+    }
+
+    file << "#ifndef _PPMP_DEFS_FOREACHDEFERRED\n";
+    file << "#define _PPMP_DEFS_FOREACHDEFERRED\n\n";
+
+    for(int i = 0; i <= max_scan_level; ++i)
+    {
+        file << "#define __for_each_deferred__" << i << "(expand_macro, const_params, ...)\\\n";
+        file << "\t__if_apply_intl__(__not_equal__(__sizeof__(__VA_ARGS__), 0))\\\n";
+        file << "\t(\\\n";
+        file << "\t\t__clause__\\\n";
+        file << "\t\t(\\\n";
+        file << "\t\t\t__full_scan__(" << i << ")(__for_each_deferred_intl__(0, __sizeof__(__VA_ARGS__), expand_macro, __forward__(const_params), __VA_ARGS__))\\\n";
+        file << "\t\t)\\\n";
+        file << "\t)\n";
+    }
+
+    file << "\n#endif\n";
+    file.close();
+}
+
+/**
+ * 生成defs/call_exp.h
+ * 生成__call_exp__N系列宏
+ * N从0到n
+ * 用于调用宏并展开参数
+ */
+void ppmp::call_exp_gen(const std::string& path, int n)
+{
+    if(n < 0)
+    {
+        std::cerr << "n must be >= 0" << std::endl;
+        return;
+    }
+    std::ofstream file(path);
+    if(!file.is_open())
+    {
+        std::cerr << "failed to open file: " << path << std::endl;
+        return;
+    }
+
+    file << "#ifndef _PPMP_CALLEXP\n";
+    file << "#define _PPMP_CALLEXP\n\n";
+
+    for(int i = 0; i <= n; ++i)
+    {
+        file << "#define __call_exp__" << i << "(macro_name, ...) macro_name(__VA_ARGS__)\n";
+    }
+
+    file << "\n#endif\n";
+    file.close();
 }

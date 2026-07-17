@@ -11,6 +11,7 @@ int main()
 	std::string output_dir = "D:/libppmp/include/ppmp/defs/";
 
 	scan_gen(output_dir + "scan.h", alias_overload);
+	call_exp_gen(output_dir + "call_exp.h", alias_overload);
 	//算术
 	inc_gen(output_dir + "inc.h", max_num);
 	dec_gen(output_dir + "dec.h", max_num);
@@ -28,5 +29,7 @@ int main()
 	while_gen(output_dir + "while.h", alias_overload, recursive_depth);
 	for_recursive_gen(output_dir + "for_recursive.h", alias_overload, recursive_depth);
 	while_recursive_gen(output_dir + "while_recursive.h", alias_overload, recursive_depth);
+	//延迟循环宏
+	for_each_deferred_gen(output_dir + "for_each_deferred.h", alias_overload);
 	return 0;
 }
