@@ -71,7 +71,7 @@
  * @brief 检测参数是否是以配对的()括起来的表达式，如果是，则得到__comma__ __VA_ARGS__展开为','，参数列表变为{, , 1, 0}展开结果为1，否则参数列表变为{__comma__ token, 1, 0}展开结果为0.
  * 	  如果括号不配对，宏展开时参数列表混乱，编译器将报错。必须先判断是否是列表，如是列表则肯定不是括号括起来的表达式。如果不判断是否是列表，则参数会展开，1, 0将后移，会导致索引为2处不是正确结果。
  */
-#define __in_matched_parenthesis__(...)\
+#define __in_matched_paren__(...)\
 	__if_else_intl__(__is_list__(__VA_ARGS__))\
 	(\
 		0,\
@@ -85,7 +85,7 @@
  *	使用__at_exp__()是为了确保__comma__ __VA_ARGS__ ()能作为多个参数传入，而不是列表整体作为一个参数传入
  */
 #define __is_empty__(...)\
-	__if_else_intl__(__or_intl__(__is_list__(__VA_ARGS__), __in_matched_parenthesis__(__VA_ARGS__)))\
+	__if_else_intl__(__or_intl__(__is_list__(__VA_ARGS__), __in_matched_paren__(__VA_ARGS__)))\
 	(\
 		0,\
 		__at_exp__(2, __comma__ __VA_ARGS__ (), 1, 0)\
@@ -104,25 +104,37 @@
 	)
 
 /**
+ * @brief 列表末尾元素的索引
+ */
+#define __list_last_idx__(...)\
+	__dec__(__sizeof__(__VA_ARGS__))
+
+/**
+ * @brief 获取列表最后一个元素
+ */
+#define __list_last__(...)\
+	__at__(__list_last_idx__(__VA_ARGS__))(__VA_ARGS__)
+
+/**
  * @brief if-apply的子句，如果以本宏包围则先判断条件是否成立再展开求值。
  *	不能用于递归循环体内，否则由于延迟展开导致括号嵌套无法消除
  */
 #define __clause__(...) (__VA_ARGS__)
 
 #define __if_else_apply_intl__1(true_result, ...)\
-	__if_intl__(__in_matched_parenthesis__(true_result))\
+	__if_intl__(__in_matched_paren__(true_result))\
 	(\
 	__scan__\
 	) true_result
 #define __if_else_apply_intl__0(true_result, ...)\
-	__if_intl__(__in_matched_parenthesis__(__VA_ARGS__))\
+	__if_intl__(__in_matched_paren__(__VA_ARGS__))\
 	(\
 	__scan__\
 	) __VA_ARGS__
 #define __if_else_apply_intl__(cond) __cat__(2, __if_else_apply_intl__, cond)
 
 #define __if_apply_intl__1(...)\
-	__if_intl__(__in_matched_parenthesis__(__VA_ARGS__))\
+	__if_intl__(__in_matched_paren__(__VA_ARGS__))\
 	(\
 	__scan__\
 	) __VA_ARGS__
@@ -163,7 +175,8 @@
  * @detail 例如__cat_list__(,)展开为空占一个参数位；__cat_list__(, xxx)展开为, xxx占两个参数位，其中第一个参数为空。
  * 		   注意：当该宏出现在其他表达式内时，整个列表视作一个参数，原理同__pack_list__()，因此这时需要手写该宏的定义。
  */
-#define __cat_list__(token, ...) token __va_opt_comma__(__VA_ARGS__) __VA_ARGS__
+#define __list_prepend__(token, ...) token __va_opt_comma__(__VA_ARGS__) __VA_ARGS__
+#define __list_apppend__(token, ...) __VA_ARGS__ __va_opt_comma__(__VA_ARGS__) token
 
 /**
  * @brief 将一个token或变长参数列表求值变为一个bool值，如果宏展开为nullptr、0、false或空则为0，否则为1。

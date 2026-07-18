@@ -60,7 +60,7 @@ void ppmp::cat_noexp_gen(const std::string& path, int n)
 /**
  * 生成defs/full_scan.h
  */
-void ppmp::scan_gen(const std::string& path, int n, int max_scan_level)
+void ppmp::scan_gen(const std::string& path, int alias_overload, int max_level)
 {
 	std::ofstream file(path);
 	if(!file.is_open())
@@ -70,11 +70,11 @@ void ppmp::scan_gen(const std::string& path, int n, int max_scan_level)
 	}
 	file << "#ifndef _PPMP_DEFS_SCAN\n";
 	file << "#define _PPMP_DEFS_SCAN\n\n";
-	for(int i = 0; i < n; ++i)
+	for(int i = 0; i < alias_overload; ++i)
 	{
 		std::string macro_base = "__scan_" + std::to_string(i) + "_intl__";
 		file << "#define " << macro_base << "0(...) __VA_ARGS__\n";
-		for(int level = 1; level <= max_scan_level; ++level)
+		for(int level = 1; level <= max_level; ++level)
 		{
 			file << "#define " << macro_base << level << "(...) " << macro_base << (level - 1) << "(" << macro_base << (level - 1) << "(__VA_ARGS__))\n";
 		}
@@ -460,15 +460,45 @@ void ppmp::num_equal_gen(const std::string& path, int n)
 }
 
 /**
- * 生成defs/for_each.h
- * 生成__for_each_n_intl__level系列宏
- * n从0到n，level从0到max_level
+ * 生成defs/repeat.h
+ * 生成__repeat__N系列宏
+ * N从0到alias_overload
+ * 用于延迟展开的重复循环
  */
-void ppmp::for_each_gen(const std::string& path, int n, int max_level)
+void ppmp::repeat_gen(const std::string& path, int alias_overload)
 {
-	if(n < 0 || max_level < 0)
+    if(alias_overload < 0)
+    {
+        std::cerr << "alias_overload must be >= 0" << std::endl;
+        return;
+    }
+    std::ofstream file(path);
+    if(!file.is_open())
+    {
+        std::cerr << "failed to open file: " << path << std::endl;
+        return;
+    }
+    file << "#ifndef _PPMP_DEFS_REPEAT\n";
+    file << "#define _PPMP_DEFS_REPEAT\n\n";
+    for(int i = 0; i <= alias_overload; ++i)
+    {
+        file << "#define __repeat__" << i << "(count, expand_macro, ...) ";
+        file << "__full_scan__(" << i << ")(__repeat_intl__(0, count, expand_macro, __VA_ARGS__))\n";
+    }
+    file << "\n#endif\n";
+    file.close();
+}
+
+/**
+ * 生成defs/for_each.h
+ * 生成__for_each__N系列宏
+ * N从0到alias_overload
+ */
+void ppmp::for_each_gen(const std::string& path, int alias_overload)
+{
+	if(alias_overload < 0)
 	{
-		std::cerr << "n and max_level must be >= 0" << std::endl;
+		std::cerr << "alias_overload must be >= 0" << std::endl;
 		return;
 	}
 	std::ofstream file(path);
@@ -477,51 +507,37 @@ void ppmp::for_each_gen(const std::string& path, int n, int max_level)
 		std::cerr << "failed to open file: " << path << std::endl;
 		return;
 	}
+
 	file << "#ifndef _PPMP_DEFS_FOREACH\n";
 	file << "#define _PPMP_DEFS_FOREACH\n\n";
-	for(int i = 0; i <= n; ++i)
+
+	for(int i = 0; i <= alias_overload; ++i)
 	{
-		file << "#define __for_each_" << i << "_intl__(expand_macro, const_params, ...) ";
-		file << "__for_each_" << i << "_intl__0(__sizeof__(__VA_ARGS__), expand_macro, __forward__(const_params), __VA_ARGS__)\n";
-		for(int level = 0; level <= max_level; ++level)
-		{
-			if(level < max_level)
-			{
-				file << "#define __for_each_" << i << "_intl__" << level << "(end_idx, expand_macro, const_params, e, ...)\\\n";
-				file << "\t__if_intl__(__not_equal__(end_idx, " << level << "))\\\n";
-				file << "\t(\\\n";
-				file << "\t\texpand_macro(" << level << ", 0, end_idx, const_params, e)\\\n";
-				file << "\t\t__for_each_" << i << "_intl__" << (level + 1) << "(end_idx, expand_macro, __forward__(const_params), __VA_ARGS__)\\\n";
-				file << "\t)\n";
-			}
-			else
-			{
-				file << "#define __for_each_" << i << "_intl__" << max_level << "(end_idx, expand_macro, const_params, e, ...)\\\n";
-				file << "\t__if_intl__(__not_equal__(end_idx, " << max_level << "))\\\n";
-				file << "\t(\\\n";
-				file << "\t\tFOR_EACH_" << i << "_OUT_OF_RANGE\\\n";
-				file << "\t)\n";
-			}
-		}
-		if(i < n)
-		{
-			file << "\n";
-		}
+		file << "#define __for_each__" << i << "(expand_macro, const_params, ...)\\\n";
+		file << "\t__if_apply_intl__(__not_equal__(__sizeof__(__VA_ARGS__), 0))\\\n";
+		file << "\t(\\\n";
+		file << "\t\t__clause__\\\n";
+		file << "\t\t(\\\n";
+		file << "\t\t\t__full_scan__(" << i << ")(__for_each_intl__(0, __sizeof__(__VA_ARGS__), expand_macro, __forward__(const_params), __VA_ARGS__))\\\n";
+		file << "\t\t)\\\n";
+		file << "\t)\n";
 	}
-	file << "\n#endif";
+
+	file << "\n#endif\n";
 	file.close();
 }
 
 /**
  * 生成defs/for.h
- * 生成__for_n_intl__level系列宏
- * n从0到n，level从0到max_level
+ * 生成__for__N系列宏
+ * N从0到n
+ * 用于延迟展开的for循环
  */
-void ppmp::for_gen(const std::string& path, int n, int max_level)
+void ppmp::for_gen(const std::string& path, int alias_overload)
 {
-	if(n < 0 || max_level < 0)
+	if(alias_overload < 0)
 	{
-		std::cerr << "n and max_level must be >= 0" << std::endl;
+		std::cerr << "alias_overload must be >= 0" << std::endl;
 		return;
 	}
 	std::ofstream file(path);
@@ -532,49 +548,26 @@ void ppmp::for_gen(const std::string& path, int n, int max_level)
 	}
 	file << "#ifndef _PPMP_DEFS_FOR\n";
 	file << "#define _PPMP_DEFS_FOR\n\n";
-	for(int i = 0; i <= n; ++i)
+	for(int i = 0; i <= alias_overload; ++i)
 	{
-		file << "#define __for_" << i << "_intl__(begin_idx, end_idx, expand_macro, const_params, ...) ";
-		file << "__for_" << i << "_intl__0(begin_idx, begin_idx, end_idx, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
-		for(int level = 0; level <= max_level; ++level)
-		{
-			if(level < max_level)
-			{
-				file << "#define __for_" << i << "_intl__" << level << "(i, begin_idx, end_idx, expand_macro, const_params, ...)\\\n";
-				file << "\t__if_intl__(__not_equal__(i, end_idx))\\\n";
-				file << "\t(\\\n";
-				file << "\t\texpand_macro(begin_idx, end_idx, i, const_params, __VA_ARGS__)\\\n";
-				file << "\t\t__for_" << i << "_intl__" << (level + 1) << "(__inc__(i), begin_idx, end_idx, expand_macro, __forward__(const_params), __VA_ARGS__)\\\n";
-				file << "\t)\n";
-			}
-			else
-			{
-				file << "#define __for_" << i << "_intl__" << max_level << "(i, begin_idx, end_idx, expand_macro, const_params, ...)\\\n";
-				file << "\t__if_intl__(__not_equal__(i, end_idx))\\\n";
-				file << "\t(\\\n";
-				file << "\t\tFOR_" << i << "_OUT_OF_RANGE\\\n";
-				file << "\t)\n";
-			}
-		}
-		if(i < n)
-		{
-			file << "\n";
-		}
+		file << "#define __for__" << i << "(begin_idx, end_idx, expand_macro, const_params, ...) ";
+		file << "__full_scan__(" << i << ")(__for_intl__(begin_idx, begin_idx, end_idx, expand_macro, __forward__(const_params), __VA_ARGS__))\n";
 	}
-	file << "\n#endif";
+	file << "\n#endif\n";
 	file.close();
 }
 
 /**
  * 生成defs/while.h
- * 生成__while_n_intl__level系列宏
- * n从0到n，level从0到max_level
+ * 生成__while__N系列宏
+ * N从0到alias_overload
+ * 用于延迟展开的while循环
  */
-void ppmp::while_gen(const std::string& path, int n, int max_level)
+void ppmp::while_gen(const std::string& path, int alias_overload)
 {
-	if(n < 0 || max_level < 0)
+	if(alias_overload < 0)
 	{
-		std::cerr << "n and max_level must be >= 0" << std::endl;
+		std::cerr << "alias_overload must be >= 0" << std::endl;
 		return;
 	}
 	std::ofstream file(path);
@@ -585,47 +578,23 @@ void ppmp::while_gen(const std::string& path, int n, int max_level)
 	}
 	file << "#ifndef _PPMP_DEFS_WHILE\n";
 	file << "#define _PPMP_DEFS_WHILE\n\n";
-	for(int i = 0; i <= n; ++i)
+	for(int i = 0; i <= alias_overload; ++i)
 	{
-		file << "#define __while_" << i << "_intl__(cond_macro, expand_macro, const_params, ...) ";
-		file << "__while_" << i << "_intl__0(cond_macro, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
-		for(int level = 0; level <= max_level; ++level)
-		{
-			if(level < max_level)
-			{
-				file << "#define __while_" << i << "_intl__" << level << "(cond_macro, expand_macro, const_params, ...)\\\n";
-				file << "\t__if__(cond_macro(" << level << ", const_params, __VA_ARGS__))\\\n";
-				file << "\t(\\\n";
-				file << "\t\texpand_macro(" << level << ", const_params, __VA_ARGS__)\\\n";
-				file << "\t\t__while_" << i << "_intl__" << (level + 1) << "(cond_macro, expand_macro, __forward__(const_params), __VA_ARGS__)\\\n";
-				file << "\t)\n";
-			}
-			else
-			{
-				file << "#define __while_" << i << "_intl__" << max_level << "(cond_macro, expand_macro, const_params, ...)\\\n";
-				file << "\t__if__(cond_macro(" << max_level << ", const_params, __VA_ARGS__))\\\n";
-				file << "\t(\\\n";
-				file << "\t\tWHILE_" << i << "_OUT_OF_RANGE\\\n";
-				file << "\t)\n";
-			}
-		}
-		if(i < n)
-		{
-			file << "\n";
-		}
+		file << "#define __while__" << i << "(cond_macro, cond_params, expand_macro, ...) ";
+		file << "__full_scan__(" << i << ")(__while_intl__(0, cond_macro, __forward__(cond_params), expand_macro, __VA_ARGS__))\n";
 	}
-	file << "\n#endif";
+	file << "\n#endif\n";
 	file.close();
 }
 
 /**
  * 生成defs/for_recursive.h
  * 生成__for_recursive_n_intl__level系列宏
- * n从0到n，level从0到max_level
+ * i从0到alias_overload，level从0到recursive_depth
  */
-void ppmp::for_recursive_gen(const std::string& path, int n, int max_level)
+void ppmp::for_recursive_gen(const std::string& path, int alias_overload, int recursive_depth)
 {
-	if(n < 0 || max_level < 0)
+	if(alias_overload < 0 || recursive_depth < 0)
 	{
 		std::cerr << "n and max_level must be >= 0" << std::endl;
 		return;
@@ -638,13 +607,13 @@ void ppmp::for_recursive_gen(const std::string& path, int n, int max_level)
 	}
 	file << "#ifndef _PPMP_DEFS_FORRECURSIVE\n";
 	file << "#define _PPMP_DEFS_FORRECURSIVE\n\n";
-	for(int i = 0; i <= n; ++i)
+	for(int i = 0; i <= alias_overload; ++i)
 	{
 		file << "#define __for_recursive_" << i << "_intl__(begin_idx, end_idx, expand_macro, const_params, ...) ";
 		file << "__for_recursive_" << i << "__0(begin_idx, begin_idx, end_idx, expand_macro, __forward__(const_params), 1, __VA_ARGS__)\n";
-		for(int level = 0; level <= max_level; ++level)
+		for(int level = 0; level <= recursive_depth; ++level)
 		{
-			if(level < max_level)
+			if(level < recursive_depth)
 			{
 				file << "#define __for_recursive_" << i << "__" << level << "(i, begin_idx, end_idx, expand_macro, const_params, ...) ";
 				file << "__for_recursive_" << i << "_intl__" << level << "(i, begin_idx, end_idx, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
@@ -658,9 +627,9 @@ void ppmp::for_recursive_gen(const std::string& path, int n, int max_level)
 			}
 			else
 			{
-				file << "#define __for_recursive_" << i << "__" << max_level << "(i, begin_idx, end_idx, expand_macro, const_params, ...) ";
-				file << "__for_recursive_" << i << "_intl__" << max_level << "(i, begin_idx, end_idx, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
-				file << "#define __for_recursive_" << i << "_intl__" << max_level << "(i, begin_idx, end_idx, expand_macro, const_params, continue_iter, ...)\\\n";
+				file << "#define __for_recursive_" << i << "__" << recursive_depth << "(i, begin_idx, end_idx, expand_macro, const_params, ...) ";
+				file << "__for_recursive_" << i << "_intl__" << recursive_depth << "(i, begin_idx, end_idx, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
+				file << "#define __for_recursive_" << i << "_intl__" << recursive_depth << "(i, begin_idx, end_idx, expand_macro, const_params, continue_iter, ...)\\\n";
 				file << "\t__if_else_intl__(__and__(continue_iter, __not_equal__(i, end_idx)))\\\n";
 				file << "\t(\\\n";
 				file << "\t\tFOR_RECURSIVE_" << i << "_OUT_OF_RANGE,\\\n";
@@ -668,7 +637,7 @@ void ppmp::for_recursive_gen(const std::string& path, int n, int max_level)
 				file << "\t)\n";
 			}
 		}
-		if(i < n)
+		if(i < alias_overload)
 		{
 			file << "\n";
 		}
@@ -680,11 +649,11 @@ void ppmp::for_recursive_gen(const std::string& path, int n, int max_level)
 /**
  * 生成defs/while_recursive.h
  * 生成__while_recursive_n_intl__level系列宏
- * n从0到n，level从0到max_level
+ * i从0到alias_overload，level从0到recursive_depth
  */
-void ppmp::while_recursive_gen(const std::string& path, int n, int max_level)
+void ppmp::while_recursive_gen(const std::string& path, int alias_overload, int recursive_depth)
 {
-	if(n < 0 || max_level < 0)
+	if(alias_overload < 0 || recursive_depth < 0)
 	{
 		std::cerr << "n and max_level must be >= 0" << std::endl;
 		return;
@@ -697,13 +666,13 @@ void ppmp::while_recursive_gen(const std::string& path, int n, int max_level)
 	}
 	file << "#ifndef _PPMP_DEFS_WHILERECURSIVE\n";
 	file << "#define _PPMP_DEFS_WHILERECURSIVE\n\n";
-	for(int i = 0; i <= n; ++i)
+	for(int i = 0; i <= alias_overload; ++i)
 	{
 		file << "#define __while_recursive_" << i << "_intl__(cond_macro, expand_macro, const_params, ...) ";
 		file << "__while_recursive_" << i << "__0(cond_macro, expand_macro, __forward__(const_params), 1, __VA_ARGS__)\n";
-		for(int level = 0; level <= max_level; ++level)
+		for(int level = 0; level <= recursive_depth; ++level)
 		{
-			if(level < max_level)
+			if(level < recursive_depth)
 			{
 				file << "#define __while_recursive_" << i << "__" << level << "(cond_macro, expand_macro, const_params, ...) ";
 				file << "__while_recursive_" << i << "_intl__" << level << "(cond_macro, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
@@ -716,17 +685,17 @@ void ppmp::while_recursive_gen(const std::string& path, int n, int max_level)
 			}
 			else
 			{
-				file << "#define __while_recursive_" << i << "__" << max_level << "(cond_macro, expand_macro, const_params, ...) ";
-				file << "__while_recursive_" << i << "_intl__" << max_level << "(cond_macro, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
-				file << "#define __while_recursive_" << i << "_intl__" << max_level << "(cond_macro, expand_macro, const_params, continue_iter, ...)\\\n";
-				file << "\t__if_else_intl__(__and__(continue_iter, cond_macro(" << max_level << ", const_params, __VA_ARGS__)))\\\n";
+				file << "#define __while_recursive_" << i << "__" << recursive_depth << "(cond_macro, expand_macro, const_params, ...) ";
+				file << "__while_recursive_" << i << "_intl__" << recursive_depth << "(cond_macro, expand_macro, __forward__(const_params), __VA_ARGS__)\n";
+				file << "#define __while_recursive_" << i << "_intl__" << recursive_depth << "(cond_macro, expand_macro, const_params, continue_iter, ...)\\\n";
+				file << "\t__if_else_intl__(__and__(continue_iter, cond_macro(" << recursive_depth << ", const_params, __VA_ARGS__)))\\\n";
 				file << "\t(\\\n";
 				file << "\t\tWHILE_RECURSIVE_" << i << "_OUT_OF_RANGE,\\\n";
 				file << "\t\t__VA_ARGS__\\\n";
 				file << "\t)\n";
 			}
 		}
-		if(i < n)
+		if(i < alias_overload)
 		{
 			file << "\n";
 		}
@@ -736,71 +705,34 @@ void ppmp::while_recursive_gen(const std::string& path, int n, int max_level)
 }
 
 /**
- * 生成defs/for_each_deferred.h
- * 生成__for_each_deferred__N系列宏
- * N从0到max_scan_level
- */
-void ppmp::for_each_deferred_gen(const std::string& path, int max_scan_level)
-{
-    if(max_scan_level < 0)
-    {
-        std::cerr << "n must be >= 0" << std::endl;
-        return;
-    }
-    std::ofstream file(path);
-    if(!file.is_open())
-    {
-        std::cerr << "failed to open file: " << path << std::endl;
-        return;
-    }
-
-    file << "#ifndef _PPMP_DEFS_FOREACHDEFERRED\n";
-    file << "#define _PPMP_DEFS_FOREACHDEFERRED\n\n";
-
-    for(int i = 0; i <= max_scan_level; ++i)
-    {
-        file << "#define __for_each_deferred__" << i << "(expand_macro, const_params, ...)\\\n";
-        file << "\t__if_apply_intl__(__not_equal__(__sizeof__(__VA_ARGS__), 0))\\\n";
-        file << "\t(\\\n";
-        file << "\t\t__clause__\\\n";
-        file << "\t\t(\\\n";
-        file << "\t\t\t__full_scan__(" << i << ")(__for_each_deferred_intl__(0, __sizeof__(__VA_ARGS__), expand_macro, __forward__(const_params), __VA_ARGS__))\\\n";
-        file << "\t\t)\\\n";
-        file << "\t)\n";
-    }
-
-    file << "\n#endif\n";
-    file.close();
-}
-
-/**
  * 生成defs/call_exp.h
  * 生成__call_exp__N系列宏
  * N从0到n
  * 用于调用宏并展开参数
  */
-void ppmp::call_exp_gen(const std::string& path, int n)
+void ppmp::call_exp_gen(const std::string& path, int alias_overload)
 {
-    if(n < 0)
-    {
-        std::cerr << "n must be >= 0" << std::endl;
-        return;
-    }
-    std::ofstream file(path);
-    if(!file.is_open())
-    {
-        std::cerr << "failed to open file: " << path << std::endl;
-        return;
-    }
+	if(alias_overload < 0)
+	{
+		std::cerr << "n must be >= 0" << std::endl;
+		return;
+	}
+	std::ofstream file(path);
+	if(!file.is_open())
+	{
+		std::cerr << "failed to open file: " << path << std::endl;
+		return;
+	}
 
-    file << "#ifndef _PPMP_CALLEXP\n";
-    file << "#define _PPMP_CALLEXP\n\n";
+	file << "#ifndef _PPMP_DEFS_CALLEXP\n";
+	file << "#define _PPMP_DEFS_CALLEXP\n\n";
 
-    for(int i = 0; i <= n; ++i)
-    {
-        file << "#define __call_exp__" << i << "(macro_name, ...) macro_name(__VA_ARGS__)\n";
-    }
+	for(int i = 0; i <= alias_overload; ++i)
+	{
+		file << "#define __call_exp__" << i << "(macro_name, ...) macro_name(__VA_ARGS__)\n";
+	}
 
-    file << "\n#endif\n";
-    file.close();
+	file << "\n#endif\n";
+	file.close();
 }
+

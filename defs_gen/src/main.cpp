@@ -24,12 +24,11 @@ int main()
 	list_rest_gen(output_dir + "list_rest.h", list_max_size);
 	defer_gen(output_dir + "defer.h", list_max_size);
 	//循环宏
-	for_each_gen(output_dir + "for_each.h", alias_overload, recursive_depth);
-	for_gen(output_dir + "for.h", alias_overload, recursive_depth);
-	while_gen(output_dir + "while.h", alias_overload, recursive_depth);
+	repeat_gen(output_dir + "repeat.h", alias_overload);
+	for_each_gen(output_dir + "for_each.h", alias_overload);
+	for_gen(output_dir + "for.h", alias_overload);
+	while_gen(output_dir + "while.h", alias_overload);
 	for_recursive_gen(output_dir + "for_recursive.h", alias_overload, recursive_depth);
 	while_recursive_gen(output_dir + "while_recursive.h", alias_overload, recursive_depth);
-	//延迟循环宏
-	for_each_deferred_gen(output_dir + "for_each_deferred.h", alias_overload);
 	return 0;
 }

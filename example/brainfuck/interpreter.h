@@ -19,7 +19,7 @@
 
 // 设置指令指针
 #define __stip__(target_ip, ...)\
-	__replace_at_deferred__(0, 0, target_ip, __VA_ARGS__)
+	__replace_at__(0, 0, target_ip, __VA_ARGS__)
 
 // 指令指针自增
 #define __incip__(...)\
@@ -39,7 +39,7 @@
 
 // 设置数据指针
 #define __stdp__(target_dp, ...)\
-	__replace_at_deferred__(1, 1, target_dp, __VA_ARGS__)
+	__replace_at__(1, 1, target_dp, __VA_ARGS__)
 
 // 获取数据指针
 #define __dp__(...)\
@@ -51,7 +51,7 @@
 
 // 存数据
 #define __std__(data, ...)\
-	__replace_at_deferred__(2, __dp2idx__(__dp__(__VA_ARGS__)), data, __VA_ARGS__)
+	__replace_at__(2, __dp2idx__(__dp__(__VA_ARGS__)), data, __VA_ARGS__)
 
 // 获取数据带列表
 #define __dt__(...) __list_rest__(2)(__VA_ARGS__)
@@ -169,7 +169,7 @@
 #define __exec__(inst_buf, ...)\
 	__cat__(3, __inst_, __ldi__(inst_buf, __VA_ARGS__), __)(inst_buf, __VA_ARGS__)
 
-#define __zero_tape__(n) __repeat_token_deferred__(0, n, 0)
+#define __zero_tape__(n) __repeat_token__(0, n, 0)
 
 /**
  * 程序运行，每使用__exec__()执行一条指令就IP自增
@@ -187,6 +187,6 @@
 	1, __incip__(__exec__(inst_buf, __VA_ARGS__))
 #define __step__(count, inst_buf, ip, dp, ...) __for_recursive__(0)(0, count, __step_op_intl__, inst_buf, ip, dp, __VA_ARGS__)
 
-#define __str_output__(...) "ip: " __str__(__ip__(__VA_ARGS__)) "; dp: " __str__(__dp__(__VA_ARGS__)) "; data_tape: " __str__(__replace_delim_deferred__(0, , __dt__(__VA_ARGS__))) ";"
+#define __str_output__(...) "ip: " __str__(__ip__(__VA_ARGS__)) "; dp: " __str__(__dp__(__VA_ARGS__)) "; data_tape: " __str__(__replace_delim__(0, , __dt__(__VA_ARGS__))) ";"
 
 #endif // _PPMP_BRAINFUCK_INTERPRETER

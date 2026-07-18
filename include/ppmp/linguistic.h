@@ -1,11 +1,9 @@
 #ifndef _PPMP_LINGUISTIC
 #define _PPMP_LINGUISTIC
 
-#include "token.h"
-#include "list.h"
-#include "list_op_step.h"
-#include "deferred_loop.h"
 #include "base.h"
+#include "list_op_step.h"
+#include "loop.h"
 
 /**
  * C/C++语法层的处理相关头文件
@@ -53,7 +51,7 @@
 #define __declaration_list_op__(i, begin_idx, end_idx, const_params, declaration)\
 	__append_to_list_step__(i, end_idx, __declaration_tuple_exp_val__(__declaration_val__(declaration)))
 #define __declaration_list__(expand_id, ...)\
-	__for_each_deferred__(expand_id)(__declaration_list_op__, , __VA_ARGS__)
+	__for_each__(expand_id)(__declaration_list_op__, , __VA_ARGS__)
 
 /**
  * @brief 将__declaration_of__()组成的列表拆分为type1, type2...形式的列表
@@ -61,7 +59,7 @@
 #define __declaration_type_list_op__(i, begin_idx, end_idx, const_params, declaration)\
 	__append_to_list_step__(i, end_idx, __declaration_type_val__(declaration))
 #define __declaration_type_list__(expand_id, ...)\
-	__for_each_deferred__(expand_id)(__declaration_type_list_op__, , __VA_ARGS__)
+	__for_each__(expand_id)(__declaration_type_list_op__, , __VA_ARGS__)
 
 /**
  * @brief 将__declaration_of__()组成的列表拆分为name1, name2...形式的列表
@@ -69,6 +67,6 @@
 #define __declaration_name_list_op__(i, begin_idx, end_idx, const_params, declaration)\
 	__append_to_list_step__(i, end_idx, __declaration_name_val__(declaration))
 #define __declaration_name_list__(expand_id, ...)\
-	__for_each_deferred__(expand_id)(__declaration_name_list_op__, , __VA_ARGS__)
+	__for_each__(expand_id)(__declaration_name_list_op__, , __VA_ARGS__)
 
 #endif//_PPMP_LINGUISTIC

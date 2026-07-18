@@ -17,10 +17,16 @@
 
 #define __at_exp__(idx, ...) __at__(idx)(__VA_ARGS__)
 
+/**
+ * @brief 保留前n个元素
+ */
 #define __list_front__(n) __cat__(2, __list_front__, n)
 
 #define __list_exp_front__(n, ...) __list_front__(n)(__VA_ARGS__)
 
+/**
+ * @brief 保留除去前n个元素剩下的其他元素
+ */
 #define __list_rest__(n) __cat__(2, __list_rest__, n)
 
 #define __list_exp_rest__(n, ...) __list_rest__(n)(__VA_ARGS__)
