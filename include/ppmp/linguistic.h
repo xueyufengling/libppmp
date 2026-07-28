@@ -69,4 +69,14 @@
 #define __declaration_name_list__(expand_id, ...)\
 	__for_each__(expand_id)(__declaration_name_list_op__, , __VA_ARGS__)
 
+/**
+ * @brief 在.cpp编译单元内定义动态初始化代码
+ */
+#define __dynamic_init__(name, ...)\
+	static const int name = []() -> int\
+	{\
+		__VA_ARGS__\
+		return 0;\
+	}();
+
 #endif//_PPMP_LINGUISTIC
