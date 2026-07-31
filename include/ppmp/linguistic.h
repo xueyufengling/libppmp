@@ -30,6 +30,7 @@
 
 /**
  * @brief 声明，包含类型和名称
+ * 		  声明列表形式为__declaration__(__entity__(type1), __entity__(name1)), __declaration__(__entity__(type2), __entity__(name2))
  */
 #define __declaration__(type_entity, name_entity) __pack__(type_entity, name_entity)
 
@@ -46,7 +47,7 @@
 #define __declaration_name_val__(declaration) __entity_val__(__declaration_name__(declaration))
 
 /**
- * @brief 将__declaration_of__()组成的列表拆分为type1 name1, type2 name2...形式的列表
+ * @brief 将__declaration__()组成的列表拆分为type1 name1, type2 name2...形式的列表
  */
 #define __declaration_list_op__(i, begin_idx, end_idx, const_params, declaration)\
 	__append_to_list_step__(i, end_idx, __declaration_tuple_exp_val__(__declaration_val__(declaration)))
@@ -54,7 +55,7 @@
 	__for_each__(expand_id)(__declaration_list_op__, , __VA_ARGS__)
 
 /**
- * @brief 将__declaration_of__()组成的列表拆分为type1, type2...形式的列表
+ * @brief 将__declaration__()组成的列表拆分为type1, type2...形式的列表
  */
 #define __declaration_type_list_op__(i, begin_idx, end_idx, const_params, declaration)\
 	__append_to_list_step__(i, end_idx, __declaration_type_val__(declaration))
@@ -62,21 +63,11 @@
 	__for_each__(expand_id)(__declaration_type_list_op__, , __VA_ARGS__)
 
 /**
- * @brief 将__declaration_of__()组成的列表拆分为name1, name2...形式的列表
+ * @brief 将__declaration__()组成的列表拆分为name1, name2...形式的列表
  */
 #define __declaration_name_list_op__(i, begin_idx, end_idx, const_params, declaration)\
 	__append_to_list_step__(i, end_idx, __declaration_name_val__(declaration))
 #define __declaration_name_list__(expand_id, ...)\
 	__for_each__(expand_id)(__declaration_name_list_op__, , __VA_ARGS__)
-
-/**
- * @brief 在.cpp编译单元内定义动态初始化代码
- */
-#define __dynamic_init__(name, ...)\
-	static const int name = []() -> int\
-	{\
-		__VA_ARGS__\
-		return 0;\
-	}();
 
 #endif//_PPMP_LINGUISTIC

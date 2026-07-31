@@ -2,6 +2,7 @@
 #define _PPMP_TOKEN
 
 #include "defs/cat_noexp.h"
+#include "defs/cat_front_noexp.h"
 #include "defs/call_exp.h"
 #include "defs/defer.h"
 #include "defs/scan.h"
@@ -10,13 +11,18 @@
  * token处理
  */
 
-#define __cat_noexp_intl__(n) __cat_noexp__##n
-#define __cat_noexp__(n) __cat_noexp_intl__(n)
+#define __cat_2_intl__(_0, _1) _0##_1
+
+#define __cat_noexp__(n) __cat_2_intl__(__cat_noexp__, n)
+
+#define __cat_front_noexp__(n) __cat_2_intl__(__cat_front_noexp__, n)
 
 /**
  * @brief 变长参数列表展开1次后的前n项连接，cat的强形式，参数数量如果少于n会引发编译错误
  */
 #define __cat__(n, ...) __cat_noexp__(n)(__VA_ARGS__)
+
+#define __cat_front__(n, ...) __cat_front_noexp__(n)(__VA_ARGS__)
 
 /**
  * @brief 不展开传入参数，直接将传入token字符串化

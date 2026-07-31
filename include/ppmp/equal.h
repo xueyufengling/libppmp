@@ -120,5 +120,20 @@
 #define __equal_def__ifndef(x) x
 #define __equal_def__elif(x) x
 #define __equal_def__endif(x) x
+//GCC编译器拓展
+#define __equal_def____attribute__(x) x
+#define __equal_def____thread(x) x
+#define __equal_def____restrict__(x) x
+#define __equal_def____restrict(x) x
+//MSVC编译器拓展
+#define __equal_def____declspec(x) x
+#define __equal_def____forceinline(x) x
+#define __equal_def____assume(x) x
+#define __equal_def____asm(x) x
+//MSVC调用约定
+#define __equal_def____stdcall(x) x
+#define __equal_def____cdecl(x) x
+#define __equal_def____fastcall(x) x
+#define __equal_def____vectorcall(x) x
 
 #endif//_PPMP_EQUAL

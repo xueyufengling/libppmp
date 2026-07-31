@@ -8,6 +8,9 @@ namespace ppmp
 // 生成 defs/cat_noexp.h
 void cat_noexp_gen(const std::string& path, int n);
 
+// 生成 defs/cat_front_noexp.h
+void cat_front_noexp_gen(const std::string& path, int n);
+
 // 生成 defs/full_scan.h
 void scan_gen(const std::string& path, int alias_overload, int max_level = 16);
 

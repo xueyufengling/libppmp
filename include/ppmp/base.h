@@ -116,6 +116,15 @@
 	__at__(__list_last_idx__(__VA_ARGS__))(__VA_ARGS__)
 
 /**
+ * @brief 如果传入的是__pack__()打包宏，则展开包，否则不作处理（但会扫描一次）
+ */
+#define __try_unpack__(...)\
+	__if_intl__(__in_matched_paren__(__VA_ARGS__))\
+	(\
+		__scan__\
+	)__VA_ARGS__
+
+/**
  * @brief if-apply的子句，如果以本宏包围则先判断条件是否成立再展开求值。
  *	不能用于递归循环体内，否则由于延迟展开导致括号嵌套无法消除
  */
@@ -124,20 +133,20 @@
 #define __if_else_apply_intl__1(true_result, ...)\
 	__if_intl__(__in_matched_paren__(true_result))\
 	(\
-	__scan__\
-	) true_result
+		__scan__\
+	)true_result
 #define __if_else_apply_intl__0(true_result, ...)\
 	__if_intl__(__in_matched_paren__(__VA_ARGS__))\
 	(\
-	__scan__\
-	) __VA_ARGS__
+		__scan__\
+	)__VA_ARGS__
 #define __if_else_apply_intl__(cond) __cat__(2, __if_else_apply_intl__, cond)
 
 #define __if_apply_intl__1(...)\
 	__if_intl__(__in_matched_paren__(__VA_ARGS__))\
 	(\
-	__scan__\
-	) __VA_ARGS__
+		__scan__\
+	)__VA_ARGS__
 #define __if_apply_intl__0(...)
 #define __if_apply_intl__(cond) __cat__(2, __if_apply_intl__, cond)
 
@@ -169,6 +178,9 @@
  * 	  如果仅用于代码生成时生成','则不需要重新扫描，仅当需要展开的','作为宏参数分隔符时需要重新扫描
  */
 #define __va_opt_comma__(...) __va_opt__(__comma__(), __VA_ARGS__)
+
+#define __front_va_opt_comma__(...) __va_opt_comma__(__VA_ARGS__) __VA_ARGS__
+#define __back_va_opt_comma__(...) __VA_ARGS__ __va_opt_comma__(__VA_ARGS__)
 
 /**
  * @brief 拼接预处理器的token，如果变长参数列表为空则略去分隔符','

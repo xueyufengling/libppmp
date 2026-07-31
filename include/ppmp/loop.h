@@ -49,9 +49,9 @@
 #define __alias_for_intl__() __for_intl__
 /**
  * @brief 循环[begin_idx, begin_idx, end_idx)，使用方法为
- * 		  __for__(expand_id)(begin_idx, end_idx, expand_macro, expand_params, elements...)
- * 		  expand_macro第一个参数必须是起始索引，第二个参数必须是终止索引（不包含），第三个参数必须是当前索引，第四个参数必须是当前元素，即
- * 		  expand_macro(begin_idx, end_idx, current_idx, expand_params, elements...)
+ * 		  __for__(expand_id)(begin_idx, end_idx, expand_macro, const_params, elements...)
+ * 		  expand_macro第1个参数必须是当前索引，第2个参数是起始索引，第3个参数必须是终止索引（不包含），第4个参数必须是const_params，第5个元素是当前元素，即
+ * 		  expand_macro(i, begin_idx, end_idx, current_idx, const_params, elements...)
  */
 #define __for__(expand_id) __cat__(2, __for__, expand_id)
 

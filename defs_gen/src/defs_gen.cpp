@@ -58,6 +58,57 @@ void ppmp::cat_noexp_gen(const std::string& path, int n)
 }
 
 /**
+ * 生成defs/cat_front_noexp.h
+ * 生成__cat_front_noexp__N系列宏
+ * N从1到n
+ * 将前N个参数直接连接（不展开参数）
+ */
+void ppmp::cat_front_noexp_gen(const std::string& path, int n)
+{
+	if(n < 1)
+	{
+		std::cerr << "n must be >= 1" << std::endl;
+		return;
+	}
+	std::ofstream file(path);
+	if(!file.is_open())
+	{
+		std::cerr << "failed to open file: " << path << std::endl;
+		return;
+	}
+	file << "#ifndef _PPMP_CATFRONTNOEXP\n";
+	file << "#define _PPMP_CATFRONTNOEXP\n\n";
+	for(int i = 1; i <= n; ++i)
+	{
+		file << "#define __cat_front_noexp__" << i << "(";
+		for(int j = 0; j < i; ++j)
+		{
+			file << "_" << j;
+			if(j < i - 1)
+			{
+				file << ", ";
+			}
+		}
+		if(i > 0)
+		{
+			file << ", ";
+		}
+		file << "...) ";
+		for(int j = 0; j < i; ++j)
+		{
+			file << "_" << j;
+			if(j < i - 1)
+			{
+				file << "##";
+			}
+		}
+		file << "\n";
+	}
+	file << "\n#endif\n";
+	file.close();
+}
+
+/**
  * 生成defs/full_scan.h
  */
 void ppmp::scan_gen(const std::string& path, int alias_overload, int max_level)
@@ -467,26 +518,26 @@ void ppmp::num_equal_gen(const std::string& path, int n)
  */
 void ppmp::repeat_gen(const std::string& path, int alias_overload)
 {
-    if(alias_overload < 0)
-    {
-        std::cerr << "alias_overload must be >= 0" << std::endl;
-        return;
-    }
-    std::ofstream file(path);
-    if(!file.is_open())
-    {
-        std::cerr << "failed to open file: " << path << std::endl;
-        return;
-    }
-    file << "#ifndef _PPMP_DEFS_REPEAT\n";
-    file << "#define _PPMP_DEFS_REPEAT\n\n";
-    for(int i = 0; i <= alias_overload; ++i)
-    {
-        file << "#define __repeat__" << i << "(count, expand_macro, ...) ";
-        file << "__full_scan__(" << i << ")(__repeat_intl__(0, count, expand_macro, __VA_ARGS__))\n";
-    }
-    file << "\n#endif\n";
-    file.close();
+	if(alias_overload < 0)
+	{
+		std::cerr << "alias_overload must be >= 0" << std::endl;
+		return;
+	}
+	std::ofstream file(path);
+	if(!file.is_open())
+	{
+		std::cerr << "failed to open file: " << path << std::endl;
+		return;
+	}
+	file << "#ifndef _PPMP_DEFS_REPEAT\n";
+	file << "#define _PPMP_DEFS_REPEAT\n\n";
+	for(int i = 0; i <= alias_overload; ++i)
+	{
+		file << "#define __repeat__" << i << "(count, expand_macro, ...) ";
+		file << "__full_scan__(" << i << ")(__repeat_intl__(0, count, expand_macro, __VA_ARGS__))\n";
+	}
+	file << "\n#endif\n";
+	file.close();
 }
 
 /**

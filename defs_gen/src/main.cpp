@@ -1,4 +1,5 @@
 #include "defs_gen.h"
+#include "eval_gen.h"
 
 using namespace ppmp;
 
@@ -18,6 +19,7 @@ int main()
 	num_equal_gen(output_dir + "num_equal.h", max_num);
 	//列表操作
 	cat_noexp_gen(output_dir + "cat_noexp.h", list_max_size);
+	cat_front_noexp_gen(output_dir + "cat_front_noexp.h", list_max_size);
 	at_gen(output_dir + "at.h", list_max_size);
 	placeholders_gen(output_dir + "placeholders.h", list_max_size);
 	list_front_gen(output_dir + "list_front.h", list_max_size);

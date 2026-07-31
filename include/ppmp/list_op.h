@@ -116,4 +116,52 @@
 	)
 #define __decn__(expand_id, n, x) __full_scan__(expand_id)(__decn_intl__(0, n, x))
 
+/**
+ * @brief 为每个元素添加前缀
+ */
+#define __prepend_prefix_op__(i, begin_idx, end_idx, prefix, e) __cat__(2, prefix, e),
+
+#define __prepend_prefix__(expand_id, prefix, ...)\
+	__strip_trailing_1_comma__(__for_each__(expand_id)(__prepend_prefix_op__, prefix, __VA_ARGS__))
+
+/**
+ * @brief 为每个元素添加后缀
+ */
+#define __apppend_suffix_op__(i, begin_idx, end_idx, suffix, e) __cat__(2, e, suffix),
+
+#define __apppend_suffix__(expand_id, suffix, ...)\
+	__strip_trailing_1_comma__(__for_each__(expand_id)(__apppend_suffix_op__, suffix, __VA_ARGS__))
+
+/**
+ * @brief 添加词缀，即前缀和后缀
+ */
+#define __apppend_affix_op__(i, begin_idx, end_idx, prefix, suffix, e) __cat__(3, prefix, e, suffix),
+
+#define __apppend_affix__(expand_id, prefix, suffix, ...)\
+	__strip_trailing_1_comma__(__for_each__(expand_id)(__apppend_affix_op__, __pack_list__(prefix, suffix), __VA_ARGS__))
+
+/**
+ * @brief switch-case结构，
+ * @case_name_macro ... case展开宏的名称宏，即展开结果为case_name_macro(token)，是宏名。
+ * @param ... case列表
+ */
+#define __switch_case_op__(i, begin_idx, end_idx, case_name_macro, token, e)\
+	__if_else_intl__(__not_equal__(token, e))\
+	(\
+		__empty__,\
+		case_name_macro(token)\
+	)
+
+#define __switch_case__(expand_id, case_name_macro, token, ...)\
+	__for_each__(expand_id)(__switch_case_op__, __pack_list__(case_name_macro, token), __VA_ARGS__)
+
+/**
+ * @brief 遍历name_token_list中的每个name_token，并将exp_name_macro(name_token)作为宏名，以...为参数展开宏
+ */
+#define __exp_macros_op__(i, begin_idx, end_idx, exp_name_macro, exp_params, name_token)\
+	exp_name_macro(name_token)exp_params
+
+#define __exp_macros__(expand_id, exp_name_macro, name_token_list, ...)\
+	__for_each__(expand_id)(__exp_macros_op__, __pack_list__(exp_name_macro, (__VA_ARGS__)), name_token_list)
+
 #endif // _PPMP_LISTOP
