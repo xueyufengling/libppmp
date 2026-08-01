@@ -24,11 +24,11 @@
  * 		  #include __pp_store_op__(op)
  * 		  为op赋值表达式。
  */
-#define __pp_store_op__(op) <ppmp/eval/intl/__cat__(2, pp_op_, op).h>
+#define __pp_store_op__(op) <ppmp/defs/eval/__cat__(2,pp_store_op_, op).h>
 
 /**
  * @brief 储存在op中的数值。
  */
-#define __pp_op__(op) __cat__(2, __pp_op_, op, __)()
+#define __pp_op__(op) __cat__(3, __pp_op_, op, __)()
 
 #endif//_PPMP_EVAL_PPOP

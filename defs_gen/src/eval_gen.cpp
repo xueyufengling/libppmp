@@ -117,16 +117,16 @@ void ppmp::pp_store_op_gen(const std::string& path_prefix, int max_op, int n)
 		{
 			file << "#include __pp_store_op_digit__(" << op << ", " << i << ")\n";
 		}
-		file << "\n#define __pp_op_" << op << "__() ";
+		file << "\n#define __pp_op_" << op << "__() __cat__(" << n << ", ";
 		for(int j = n - 1; j >= 0; --j)
 		{
 			file << "__pp_op_" << op << "_" << j << "__()";
 			if(j > 0)
 			{
-				file << "##";
+				file << ", ";
 			}
 		}
-		file << "\n\n";
+		file << ")\n\n";
 		file << "#else\n\n";
 		file << "#error \"store op " << op << " failed. expr '__pp_expr__' not defined\"\n\n";
 		file << "#endif\n";
