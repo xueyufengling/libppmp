@@ -116,6 +116,12 @@
 	__at__(__list_last_idx__(__VA_ARGS__))(__VA_ARGS__)
 
 /**
+ * @brief 移除列表的最后一个元素
+ */
+#define __list_rm_last__(...)\
+	__list_front__(__list_last_idx__(__VA_ARGS__))(__VA_ARGS__)
+
+/**
  * @brief 如果传入的是__pack__()打包宏，则展开包，否则不作处理（但会扫描一次）
  */
 #define __try_unpack__(...)\

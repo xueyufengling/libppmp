@@ -9,11 +9,11 @@
 // 统一使用GCC拓展语法，注意变量、函数名不能与本文件定义的宏名重合
 // 编译时的编译器必须与cc.h宏获取到的完全一致，否则非预期的宏替换会引发语法错误。
 
-#if defined(__cc_gcc_compatible__)
+#if defined(__cc_gcc_compat__)
 
 #define __gccdef_active__() 1
 
-#elif defined(__cc_msvc_compatible__)
+#elif defined(__cc_msvc_compat__)
 
 #define __gccdef_active__() 1
 
@@ -136,6 +136,13 @@
 		static_assert(false, "unwind frame address builtin-function at " __str__(i) " is not supported in msvc"),\
 		_AddressOfReturnAddress()\
 	)
+
+/**
+ * @brief 表达式的值很可能是指定的值，expect必须是立即数（数字字面量）。
+ * 		  由于MSVC不支持跨栈帧回溯，故直接返回表达式本身.变长参数列表最后一个元素就是期望立即值，前面的元素都是表达式
+ */
+#define __builtin_expect(...)\
+	(__list_rm_last__(__VA_ARGS__))
 
 #else
 

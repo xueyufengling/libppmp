@@ -107,6 +107,8 @@
 #define __lparen__(...) (
 #define __rparen__(...) )
 
+#define __in_paren__(...) (__VA_ARGS__)
+
 #define __hash_token__ #
 #define __hash__(...) __hash_token__
 #define __double_hash__(...) __cat__(2, __hash_token__, __hash_token__)

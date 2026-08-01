@@ -3,14 +3,8 @@
 
 using namespace ppmp;
 
-int main()
+void defs_gen(std::string output_dir, const int max_num, const int list_max_size, const int alias_overload, const int recursive_depth)
 {
-	const int max_num = 256; //最大数字
-	const int list_max_size = max_num; //最大参数个数
-	const int alias_overload = 16;
-	const int recursive_depth = 256;
-	std::string output_dir = "D:/libppmp/include/ppmp/defs/";
-
 	scan_gen(output_dir + "scan.h", alias_overload);
 	call_exp_gen(output_dir + "call_exp.h", alias_overload);
 	//算术
@@ -32,5 +26,26 @@ int main()
 	while_gen(output_dir + "while.h", alias_overload);
 	for_recursive_gen(output_dir + "for_recursive.h", alias_overload, recursive_depth);
 	while_recursive_gen(output_dir + "while_recursive.h", alias_overload, recursive_depth);
+}
+
+// PP求值
+void eval_gen(std::string output_dir, const int max_op, int max_digit_num)
+{
+	pp_store_op_digit_gen(output_dir + "eval/pp_store_op_", max_op, max_digit_num);
+	pp_store_op_gen(output_dir + "eval/pp_store_op_", max_op, max_digit_num);
+}
+
+int main()
+{
+	const int max_num = 256; //最大数字
+	const int list_max_size = max_num; //最大参数个数
+	const int alias_overload = 16;
+	const int recursive_depth = 256;
+	std::string output_dir = "D:/libppmp/include/ppmp/defs/";
+	defs_gen(output_dir, max_num, list_max_size, alias_overload, recursive_depth);
+
+	const int max_op = 16; //最多2个操作数
+	const int max_digit_num = 19;
+	eval_gen(output_dir, max_op, max_digit_num);
 	return 0;
 }

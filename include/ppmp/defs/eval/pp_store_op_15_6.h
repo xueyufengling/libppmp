@@ -1,0 +1,64 @@
+#if defined(__pp_expr__)
+
+#undef __pp_op_15_6__
+
+#if (__pp_expr__()) == 0
+
+#define __pp_op_15_0__() 0
+#define __pp_op_15_1__()
+#define __pp_op_15_2__()
+#define __pp_op_15_3__()
+#define __pp_op_15_4__()
+#define __pp_op_15_5__()
+#define __pp_op_15_6__()
+#define __pp_op_15_7__()
+#define __pp_op_15_8__()
+#define __pp_op_15_9__()
+#define __pp_op_15_10__()
+#define __pp_op_15_11__()
+#define __pp_op_15_12__()
+#define __pp_op_15_13__()
+#define __pp_op_15_14__()
+#define __pp_op_15_15__()
+#define __pp_op_15_16__()
+#define __pp_op_15_17__()
+#define __pp_op_15_18__()
+#define __pp_op_15_19__()
+
+#else
+
+#if ((__pp_expr__()) / 1000000) % 10 == 0
+#if ((__pp_expr__()) / 1000000) >= 10
+#define __pp_op_15_6__() 0
+#else
+#define __pp_op_15_6__()
+#endif
+#elif ((__pp_expr__()) / 1000000) % 10 == 1
+#define __pp_op_15_6__() 1
+#elif ((__pp_expr__()) / 1000000) % 10 == 2
+#define __pp_op_15_6__() 2
+#elif ((__pp_expr__()) / 1000000) % 10 == 3
+#define __pp_op_15_6__() 3
+#elif ((__pp_expr__()) / 1000000) % 10 == 4
+#define __pp_op_15_6__() 4
+#elif ((__pp_expr__()) / 1000000) % 10 == 5
+#define __pp_op_15_6__() 5
+#elif ((__pp_expr__()) / 1000000) % 10 == 6
+#define __pp_op_15_6__() 6
+#elif ((__pp_expr__()) / 1000000) % 10 == 7
+#define __pp_op_15_6__() 7
+#elif ((__pp_expr__()) / 1000000) % 10 == 8
+#define __pp_op_15_6__() 8
+#elif ((__pp_expr__()) / 1000000) % 10 == 9
+#define __pp_op_15_6__() 9
+#endif
+
+#endif
+
+#include "../../eval/intl/expr_auto_undef.h"
+
+#else
+
+#error "store digit 6 in op 15 failed. expr '__pp_expr__' not defined"
+
+#endif
