@@ -7,13 +7,14 @@
 /**
  * 生成defs/cat_noexp.h
  */
-void ppmp::cat_noexp_gen(const std::string& path, int n)
+void ppmp::cat_noexp_gen(const std::string& incl_path, int n)
 {
 	if(n < 1)
 	{
 		std::cerr << "n must be >= 1" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/cat_noexp.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -63,13 +64,14 @@ void ppmp::cat_noexp_gen(const std::string& path, int n)
  * N从1到n
  * 将前N个参数直接连接（不展开参数）
  */
-void ppmp::cat_front_noexp_gen(const std::string& path, int n)
+void ppmp::cat_front_noexp_gen(const std::string& incl_path, int n)
 {
 	if(n < 1)
 	{
 		std::cerr << "n must be >= 1" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/cat_front_noexp.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -111,8 +113,9 @@ void ppmp::cat_front_noexp_gen(const std::string& path, int n)
 /**
  * 生成defs/full_scan.h
  */
-void ppmp::scan_gen(const std::string& path, int alias_overload, int max_level)
+void ppmp::scan_gen(const std::string& incl_path, int alias_overload, int max_level)
 {
+	std::string path = incl_path + "ppmp/defs/scan.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -139,13 +142,14 @@ void ppmp::scan_gen(const std::string& path, int alias_overload, int max_level)
  * 生成defs/inc.h
  * 正溢出结果变为最小值‌
  */
-void ppmp::inc_gen(const std::string& path, int n)
+void ppmp::inc_gen(const std::string& incl_path, int n)
 {
 	if(n < 0)
 	{
 		std::cerr << "n must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/inc.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -184,13 +188,14 @@ void ppmp::inc_gen(const std::string& path, int n)
  * 生成defs/dec.h
  * 负溢出结果变为最大值
  */
-void ppmp::dec_gen(const std::string& path, int n)
+void ppmp::dec_gen(const std::string& incl_path, int n)
 {
 	if(n < 0)
 	{
 		std::cerr << "n must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/dec.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -234,13 +239,14 @@ void ppmp::dec_gen(const std::string& path, int n)
  * 生成defs/at.h
  * 按索引取参数
  */
-void ppmp::at_gen(const std::string& path, int n)
+void ppmp::at_gen(const std::string& incl_path, int n)
 {
 	if(n < 0)
 	{
 		std::cerr << "n must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/at.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -276,13 +282,14 @@ void ppmp::at_gen(const std::string& path, int n)
  * 生成defs/list_front.h
  * 生成__list_front__N系列宏，取列表前N个元素
  */
-void ppmp::list_front_gen(const std::string& path, int n)
+void ppmp::list_front_gen(const std::string& incl_path, int n)
 {
 	if(n < 0)
 	{
 		std::cerr << "n must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/list_front.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -326,13 +333,14 @@ void ppmp::list_front_gen(const std::string& path, int n)
  * 生成defs/list_rest.h
  * 生成__list_rest__N系列宏，取列表去掉前N个元素后的剩余部分
  */
-void ppmp::list_rest_gen(const std::string& path, int n)
+void ppmp::list_rest_gen(const std::string& incl_path, int n)
 {
 	if(n < 0)
 	{
 		std::cerr << "n must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/list_rest.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -366,13 +374,14 @@ void ppmp::list_rest_gen(const std::string& path, int n)
  * 生成defs/placeholders.h
  * 生成占位符标记列表和数量列表
  */
-void ppmp::placeholders_gen(const std::string& path, int n)
+void ppmp::placeholders_gen(const std::string& incl_path, int n)
 {
 	if(n < 0)
 	{
 		std::cerr << "n must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/placeholders.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -449,13 +458,14 @@ void ppmp::placeholders_gen(const std::string& path, int n)
  * 生成defs/defer.h
  * 生成__defer__N系列宏，用于延迟展开
  */
-void ppmp::defer_gen(const std::string& path, int pass)
+void ppmp::defer_gen(const std::string& incl_path, int pass)
 {
 	if(pass < 0)
 	{
 		std::cerr << "pass must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/defer.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -478,13 +488,14 @@ void ppmp::defer_gen(const std::string& path, int pass)
  * 生成defs/num_equal.h
  * 数值的相等判定
  */
-void ppmp::num_equal_gen(const std::string& path, int n)
+void ppmp::num_equal_gen(const std::string& incl_path, int n)
 {
 	if(n < 0)
 	{
 		std::cerr << "n must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/num_equal.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -516,13 +527,14 @@ void ppmp::num_equal_gen(const std::string& path, int n)
  * N从0到alias_overload
  * 用于延迟展开的重复循环
  */
-void ppmp::repeat_gen(const std::string& path, int alias_overload)
+void ppmp::repeat_gen(const std::string& incl_path, int alias_overload)
 {
 	if(alias_overload < 0)
 	{
 		std::cerr << "alias_overload must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/repeat.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -545,13 +557,14 @@ void ppmp::repeat_gen(const std::string& path, int alias_overload)
  * 生成__for_each__N系列宏
  * N从0到alias_overload
  */
-void ppmp::for_each_gen(const std::string& path, int alias_overload)
+void ppmp::for_each_gen(const std::string& incl_path, int alias_overload)
 {
 	if(alias_overload < 0)
 	{
 		std::cerr << "alias_overload must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/for_each.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -584,13 +597,14 @@ void ppmp::for_each_gen(const std::string& path, int alias_overload)
  * N从0到n
  * 用于延迟展开的for循环
  */
-void ppmp::for_gen(const std::string& path, int alias_overload)
+void ppmp::for_gen(const std::string& incl_path, int alias_overload)
 {
 	if(alias_overload < 0)
 	{
 		std::cerr << "alias_overload must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/for.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -614,13 +628,14 @@ void ppmp::for_gen(const std::string& path, int alias_overload)
  * N从0到alias_overload
  * 用于延迟展开的while循环
  */
-void ppmp::while_gen(const std::string& path, int alias_overload)
+void ppmp::while_gen(const std::string& incl_path, int alias_overload)
 {
 	if(alias_overload < 0)
 	{
 		std::cerr << "alias_overload must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/while.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -643,13 +658,14 @@ void ppmp::while_gen(const std::string& path, int alias_overload)
  * 生成__for_recursive_n_intl__level系列宏
  * i从0到alias_overload，level从0到recursive_depth
  */
-void ppmp::for_recursive_gen(const std::string& path, int alias_overload, int recursive_depth)
+void ppmp::for_recursive_gen(const std::string& incl_path, int alias_overload, int recursive_depth)
 {
 	if(alias_overload < 0 || recursive_depth < 0)
 	{
 		std::cerr << "n and max_level must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/for_recursive.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -702,13 +718,14 @@ void ppmp::for_recursive_gen(const std::string& path, int alias_overload, int re
  * 生成__while_recursive_n_intl__level系列宏
  * i从0到alias_overload，level从0到recursive_depth
  */
-void ppmp::while_recursive_gen(const std::string& path, int alias_overload, int recursive_depth)
+void ppmp::while_recursive_gen(const std::string& incl_path, int alias_overload, int recursive_depth)
 {
 	if(alias_overload < 0 || recursive_depth < 0)
 	{
 		std::cerr << "n and max_level must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/while_recursive.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{
@@ -761,13 +778,14 @@ void ppmp::while_recursive_gen(const std::string& path, int alias_overload, int 
  * N从0到n
  * 用于调用宏并展开参数
  */
-void ppmp::call_exp_gen(const std::string& path, int alias_overload)
+void ppmp::call_exp_gen(const std::string& incl_path, int alias_overload)
 {
 	if(alias_overload < 0)
 	{
 		std::cerr << "n must be >= 0" << std::endl;
 		return;
 	}
+	std::string path = incl_path + "ppmp/defs/call_exp.h";
 	std::ofstream file(path);
 	if(!file.is_open())
 	{

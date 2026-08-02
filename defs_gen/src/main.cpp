@@ -1,51 +1,51 @@
 #include "defs_gen.h"
-#include "eval_gen.h"
+#include "incl_gen.h"
 
 using namespace ppmp;
 
-void defs_gen(std::string output_dir, const int max_num, const int list_max_size, const int alias_overload, const int recursive_depth)
+void defs_gen(std::string incl_path, const int max_num, const int list_max_size, const int alias_overload, const int recursive_depth)
 {
-	scan_gen(output_dir + "scan.h", alias_overload);
-	call_exp_gen(output_dir + "call_exp.h", alias_overload);
+	scan_gen(incl_path, alias_overload);
+	call_exp_gen(incl_path, alias_overload);
 	//算术
-	inc_gen(output_dir + "inc.h", max_num);
-	dec_gen(output_dir + "dec.h", max_num);
-	num_equal_gen(output_dir + "num_equal.h", max_num);
+	inc_gen(incl_path, max_num);
+	dec_gen(incl_path, max_num);
+	num_equal_gen(incl_path, max_num);
 	//列表操作
-	cat_noexp_gen(output_dir + "cat_noexp.h", list_max_size);
-	cat_front_noexp_gen(output_dir + "cat_front_noexp.h", list_max_size);
-	at_gen(output_dir + "at.h", list_max_size);
-	placeholders_gen(output_dir + "placeholders.h", list_max_size);
-	list_front_gen(output_dir + "list_front.h", list_max_size);
-	list_rest_gen(output_dir + "list_rest.h", list_max_size);
-	defer_gen(output_dir + "defer.h", list_max_size);
+	cat_noexp_gen(incl_path, list_max_size);
+	cat_front_noexp_gen(incl_path, list_max_size);
+	at_gen(incl_path, list_max_size);
+	placeholders_gen(incl_path, list_max_size);
+	list_front_gen(incl_path, list_max_size);
+	list_rest_gen(incl_path, list_max_size);
+	defer_gen(incl_path, list_max_size);
 	//循环宏
-	repeat_gen(output_dir + "repeat.h", alias_overload);
-	for_each_gen(output_dir + "for_each.h", alias_overload);
-	for_gen(output_dir + "for.h", alias_overload);
-	while_gen(output_dir + "while.h", alias_overload);
-	for_recursive_gen(output_dir + "for_recursive.h", alias_overload, recursive_depth);
-	while_recursive_gen(output_dir + "while_recursive.h", alias_overload, recursive_depth);
+	repeat_gen(incl_path, alias_overload);
+	for_each_gen(incl_path, alias_overload);
+	for_gen(incl_path, alias_overload);
+	while_gen(incl_path, alias_overload);
+	for_recursive_gen(incl_path, alias_overload, recursive_depth);
+	while_recursive_gen(incl_path, alias_overload, recursive_depth);
 }
 
 // PP求值
-void eval_gen(std::string output_dir, const int max_op, int max_digit_num)
+void eval_gen(std::string incl_path, const int max_op, int max_digit_num)
 {
-	pp_store_op_digit_gen(output_dir + "eval/pp_store_op_", max_op, max_digit_num);
-	pp_store_op_gen(output_dir + "eval/pp_store_op_", max_op, max_digit_num);
+	pp_store_op_gen(incl_path, max_op, max_digit_num);
 }
 
 int main()
 {
+	// 需要提前创建好文件夹
 	const int max_num = 256; //最大数字
 	const int list_max_size = max_num; //最大参数个数
 	const int alias_overload = 16;
 	const int recursive_depth = 256;
-	std::string output_dir = "D:/libppmp/include/ppmp/defs/";
-	defs_gen(output_dir, max_num, list_max_size, alias_overload, recursive_depth);
+	std::string incl_path = "D:/libppmp/include/";
+	defs_gen(incl_path, max_num, list_max_size, alias_overload, recursive_depth);
 
 	const int max_op = 16; //最多2个操作数
 	const int max_digit_num = 19;
-	eval_gen(output_dir, max_op, max_digit_num);
+	eval_gen(incl_path, max_op, max_digit_num);
 	return 0;
 }
