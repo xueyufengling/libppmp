@@ -1,7 +1,5 @@
 #if defined(__pp_expr__)
 
-#undef __pp_op_12__
-
 #if (__pp_expr__()) == 0
 
 #define __pp_op_12_0__() 0
@@ -51,12 +49,13 @@
 
 #endif
 
+#undef __pp_op_12__
 #define __pp_op_12__() __cat__(19, __pp_op_12_18__(), __pp_op_12_17__(), __pp_op_12_16__(), __pp_op_12_15__(), __pp_op_12_14__(), __pp_op_12_13__(), __pp_op_12_12__(), __pp_op_12_11__(), __pp_op_12_10__(), __pp_op_12_9__(), __pp_op_12_8__(), __pp_op_12_7__(), __pp_op_12_6__(), __pp_op_12_5__(), __pp_op_12_4__(), __pp_op_12_3__(), __pp_op_12_2__(), __pp_op_12_1__(), __pp_op_12_0__())
 
-#include <ppmp/defs/incl/op/pp_expr_auto_undef.h>
+#include "pp_expr_auto_undef.h"
 
 #else
 
-#error "store 'pp_op' 12 failed. expr '__pp_expr__' not defined"
+#error "store 'pp_op' 12 failed. expr '__pp_expr__()' not defined"
 
 #endif

@@ -32,6 +32,6 @@
 
 #else
 
-#error "cmp op 5 and op 10 failed. '__pp_op_5__' or '__pp_op_10__' not defined"
+#error "cmp 'pp_op' 5 and 10 failed. '__pp_op_5__()' or '__pp_op_10__()' not defined"
 
 #endif

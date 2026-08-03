@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 
-void ppmp::pp_store_header_gen(const std::string& incl_path, const std::string& file_prefix, const std::string& file_header_prot, const std::string& store_name, int max_op, int n)
+void ppmp::pp_store_header_gen(const std::string& incl_path, const std::string& file_prefix, const std::string& file_header_prot, const std::string& expr_name, const std::string& store_name, int max_st, int n, bool auto_undef, bool gen_auto_undef)
 {
 	if(n < 0)
 	{
@@ -22,43 +22,28 @@ void ppmp::pp_store_header_gen(const std::string& incl_path, const std::string& 
 	file << "#ifndef " << file_header_prot << "\n";
 	file << "#define " << file_header_prot << "\n\n";
 	file << "#include <ppmp/token.h>\n\n";
-	file << "#define __" << store_name << "_digit_max_num__(...) " << (n + 1) << "\n";
-	file << "#define __" << store_name << "_digit_max_idx__(...) " << n << "\n";
-	file << "#define __" << store_name << "_max_num__(...) " << (max_op + 1) << "\n";
-	file << "#define __" << store_name << "_max_idx__(...) " << max_op << "\n\n";
+	file << "#define __" << store_name << "_digit_max_num__(...) " << n << "\n";
+	file << "#define __" << store_name << "_digit_max_idx__(...) " << (n - 1) << "\n";
+	file << "#define __" << store_name << "_max_num__(...) " << max_st << "\n";
+	file << "#define __" << store_name << "_max_idx__(...) " << (max_st - 1) << "\n\n";
 	// 一位数字存取
 	file << "#define __store_" << store_name << "_digit__(st, n) <__cat__(5," << file_prefix << store_name << ", _, st, _, n).h>\n";
 	file << "#define __" << store_name << "_digit__(st, n) __cat__(5, __" << store_name << "_, st, _, n, __)()\n";
 	// 数字整体存取
 	file << "#define __store_" << store_name << "__(st) <__cat__(3," << file_prefix << store_name << ", _, st).h>\n";
 	file << "#define __" << store_name << "__(st) __cat__(3, __" << store_name << "_, st, __)()\n\n";
-	file << "#endif";
-	file.close();
-}
-
-void ppmp::pp_store_expr_auto_undef_gen(const std::string& incl_path, const std::string& file_prefix, const std::string& expr_name)
-{
-	std::string header_file_path = incl_path + file_prefix + expr_name + "_auto_undef.h";
-	std::ofstream file(header_file_path);
-	if(!file.is_open())
-	{
-		std::cerr << "failed to open file: " << header_file_path << std::endl;
-		return;
-	}
-	file << "#if defined(__" << expr_name << "_auto_undef__)\n";
-	file << "#if __" << expr_name << "_auto_undef__()\n";
-	file << "#undef __" << expr_name << "__\n";
-	file << "#endif\n";
+	file << "#define __" << expr_name << "_support_auto_undef__() " << auto_undef << "\n";
+	file << "#define __" << expr_name << "_check_auto_undef__() " << gen_auto_undef << "\n\n";
 	file << "#endif";
 	file.close();
 }
 
 /**
- * 生成<defs_file_prefix>_<op>_<i>.h 系列文件
- * 每个文件定义__<store_name>_<op>_<i>__()宏，返回__<expr_name>__的计算结果第i位数字
+ * 生成defs_file_prefix/<store_name>_<st>_<i>.h 系列文件
+ * 每个文件定义__<store_name>_<st>_<i>__()宏，返回__<expr_name>__的计算结果第i位数字
  * i从0到n，其中0是个位，1是十位，依此类推。
  */
-void ppmp::pp_store_digit_gen(const std::string& incl_path, const std::string& file_prefix, const std::string& expr_name, const std::string& store_name, int max_op, int n)
+void ppmp::pp_store_digit_gen(const std::string& incl_path, const std::string& file_prefix, const std::string& expr_name, const std::string& store_name, int max_st, int n)
 {
 	if(n < 0)
 	{
@@ -67,11 +52,11 @@ void ppmp::pp_store_digit_gen(const std::string& incl_path, const std::string& f
 	}
 	std::string defs_file_prefix = incl_path + file_prefix + store_name;
 	// 生成求值文件
-	for(int op = 0; op < max_op; ++op)
+	for(int st = 0; st < max_st; ++st)
 	{
 		for(int i = 0; i < n; ++i)
 		{
-			std::string path = defs_file_prefix + "_" + std::to_string(op) + "_" + std::to_string(i) + ".h";
+			std::string path = defs_file_prefix + "_" + std::to_string(st) + "_" + std::to_string(i) + ".h";
 			std::ofstream file(path);
 			if(!file.is_open())
 			{
@@ -79,7 +64,6 @@ void ppmp::pp_store_digit_gen(const std::string& incl_path, const std::string& f
 				continue;
 			}
 			file << "#if defined(__" << expr_name << "__)\n\n";
-			file << "#undef __" << store_name << "_" << op << "_" << i << "__\n\n";
 			std::string div_expr;
 			if(i == 0)
 			{
@@ -95,91 +79,127 @@ void ppmp::pp_store_digit_gen(const std::string& incl_path, const std::string& f
 				{
 					file << "#if " << div_expr << " % 10 == 0\n";
 					file << "#if " << div_expr << " >= 10\n";
-					file << "#define __" << store_name << "_" << op << "_" << i << "__() 0\n";
+					file << "#undef __" << store_name << "_" << st << "_" << i << "__\n"; // 必须在使用完div_expr后才能undef原宏，防止惰性求值依赖__<store_name>_<st>_<i>__()的旧值
+					file << "#define __" << store_name << "_" << st << "_" << i << "__() 0\n";
 					file << "#else\n"; // 若高位无非0有效数字，则当前的0定义为空
-					file << "#define __" << store_name << "_" << op << "_" << i << "__()\n";
+					file << "#undef __" << store_name << "_" << st << "_" << i << "__\n";
+					file << "#define __" << store_name << "_" << st << "_" << i << "__()\n";
 					file << "#endif\n";
 				}
 				else
 				{
 					file << "#elif " << div_expr << " % 10 == " << digit << "\n";
-					file << "#define __" << store_name << "_" << op << "_" << i << "__() " << digit << "\n";
+					file << "#undef __" << store_name << "_" << st << "_" << i << "__\n";
+					file << "#define __" << store_name << "_" << st << "_" << i << "__() " << digit << "\n";
 				}
 			}
 			file << "#endif\n\n";
 			file << "#else\n\n";
-			file << "#error \"store digit " << i << " in '" << store_name << "' " << op << " failed. expr '__" << expr_name << "__' not defined\"\n\n";
+			file << "#error \"store digit " << i << " in '" << store_name << "' " << st << " failed. expr '__" << expr_name << "__()' not defined\"\n\n";
 			file << "#endif\n";
 			file.close();
 		}
 	}
 }
 
-/**
- * 生成<defs_file_prefix>_<i>.h系列文件
- * 每个文件定义__<store_name>_<i>__()宏，用于存储运算结果
- */
-void ppmp::pp_store_gen(const std::string& incl_path, const std::string& file_prefix, const std::string& expr_name, const std::string& store_name, int max_op, int n)
+// 根据宏开关实现自动undef
+void ppmp::pp_auto_undef_gen(const std::string& incl_path, const std::string& file_prefix, const std::string& name)
 {
-	if(max_op < 0 || n < 0)
+	std::string header_file_path = incl_path + file_prefix + name + "_auto_undef.h";
+	std::ofstream file(header_file_path);
+	if(!file.is_open())
 	{
-		std::cerr << "max_op and n must be >= 0" << std::endl;
+		std::cerr << "failed to open file: " << header_file_path << std::endl;
 		return;
 	}
-	std::string defs_file_prefix = incl_path + file_prefix + store_name;
-	for(int op = 0; op < max_op; ++op)
+	file << "#if defined(__" << name << "_auto_undef__)\n";
+	file << "#if __" << name << "_auto_undef__()\n";
+	file << "#undef __" << name << "__\n";
+	file << "#endif\n";
+	file << "#endif";
+	file.close();
+}
+
+/**
+ * 生成defs_file_prefix/<store_name>_<st>.h系列文件
+ * 每个文件定义__<store_name>_<st>__()宏，用于存储运算结果
+ */
+void ppmp::pp_store_gen(const std::string& incl_path, const std::string& file_prefix, const std::string& expr_name, const std::string& store_name, int max_st, int n, bool auto_undef, bool gen_auto_undef)
+{
+	if(max_st < 0 || n < 0)
 	{
-		std::string path = defs_file_prefix + "_" + std::to_string(op) + ".h";
+		std::cerr << "max_st and n must be >= 0" << std::endl;
+		return;
+	}
+	if(auto_undef && gen_auto_undef)
+		pp_auto_undef_gen(incl_path, file_prefix, expr_name);
+	std::string defs_file_prefix = incl_path + file_prefix + store_name;
+	for(int st = 0; st < max_st; ++st)
+	{
+		std::string path = defs_file_prefix + "_" + std::to_string(st) + ".h";
 		std::ofstream file(path);
 		if(!file.is_open())
 		{
 			std::cerr << "failed to open file: " << path << std::endl;
 			continue;
 		}
-		file << "#if defined(__" << expr_name << "__)\n";
-		file << "\n#undef __" << store_name << "_" << op << "__\n\n";
+		file << "#if defined(__" << expr_name << "__)\n\n";
 		// 判0的快速路径
 		file << "#if (__" << expr_name << "__()) == 0\n\n";
-		file << "#define __" << store_name << "_" << op << "_0__() 0\n";
+		file << "#define __" << store_name << "_" << st << "_0__() 0\n";
 		for(int j = 1; j <= n; ++j)
 		{
-			file << "#define __" << store_name << "_" << op << "_" << j << "__()\n";
+			file << "#define __" << store_name << "_" << st << "_" << j << "__()\n";
 		}
 		file << "\n#else\n\n";
 		file << "#include <" << file_prefix << "store_" << store_name << ".h>\n\n";
 		for(int i = 0; i < n; ++i)
 		{
-			file << "#include __store_" << store_name << "_digit__(" << op << ", " << i << ")\n";
+			file << "#include __store_" << store_name << "_digit__(" << st << ", " << i << ")\n";
 		}
 		file << "\n#endif\n\n";
-		file << "#define __" << store_name << "_" << op << "__() __cat__(" << n << ", ";
+		file << "#undef __" << store_name << "_" << st << "__\n";
+		file << "#define __" << store_name << "_" << st << "__() __cat__(" << n << ", ";
 		for(int j = n - 1; j >= 0; --j)
 		{
-			file << "__" << store_name << "_" << op << "_" << j << "__()";
+			file << "__" << store_name << "_" << st << "_" << j << "__()";
 			if(j > 0)
 			{
 				file << ", ";
 			}
 		}
 		file << ")\n\n";
-		file << "#include <" << file_prefix << expr_name << "_auto_undef.h>\n\n";
+		// 可选的自动取消expr宏定义
+		if(auto_undef)
+		{
+			if(gen_auto_undef)
+			{
+				// 若选择生成auto_undef控制宏文件，则使用该控制宏
+				file << "#include \"" << expr_name << "_auto_undef.h\"\n\n";
+			}
+			else
+			{
+				// 若不选择生成auto_undef控制宏文件，则直接undef
+				file << "#undef __" << expr_name << "__\n\n";
+			}
+		}
 		file << "#else\n\n";
-		file << "#error \"store '" << store_name << "' " << op << " failed. expr '__" << expr_name << "__' not defined\"\n\n";
+		file << "#error \"store '" << store_name << "' " << st << " failed. expr '__" << expr_name << "__()' not defined\"\n\n";
 		file << "#endif\n";
 		file.close();
 	}
 }
 
 /**
- * 生成<defs_file_prefix>_cmp_<i>_<j>.h系列文件
- * 比较__<store_name>_<i>__和__<store_name>_<j>__的大小关系
- * i和j从0到max_op
+ * 生成defs_file_prefix/cmp_<store_name>_<st1>_<st2>.h系列文件
+ * 比较__<store_name>_<st1>__和__<store_name>_<st2>__的大小关系
+ * i和j从0到max_st
  */
-void ppmp::pp_store_cmp_gen(const std::string& incl_path, const std::string& file_prefix, const std::string& file_header_prot, const std::string& store_name, int max_op)
+void ppmp::pp_store_cmp_gen(const std::string& incl_path, const std::string& file_prefix, const std::string& file_header_prot, const std::string& store_name, int max_st)
 {
-	if(max_op < 0)
+	if(max_st < 0)
 	{
-		std::cerr << "max_op must be >= 0" << std::endl;
+		std::cerr << "max_st must be >= 0" << std::endl;
 		return;
 	}
 	// 用户使用宏定义头文件
@@ -200,9 +220,9 @@ void ppmp::pp_store_cmp_gen(const std::string& incl_path, const std::string& fil
 	file << "#endif";
 	file.close();
 	std::string defs_file_prefix = incl_path + file_prefix + store_name;
-	for(int i = 0; i <= max_op; ++i)
+	for(int i = 0; i <= max_st; ++i)
 	{
-		for(int j = 0; j <= max_op; ++j)
+		for(int j = 0; j <= max_st; ++j)
 		{
 			if(i == j)
 				continue;
@@ -245,9 +265,115 @@ void ppmp::pp_store_cmp_gen(const std::string& incl_path, const std::string& fil
 			file << "#define __" << store_name << "_gt_" << j << "_" << i << "__() 0\n";
 			file << "#endif\n\n";
 			file << "#else\n\n";
-			file << "#error \"cmp op " << i << " and op " << j << " failed. '__" << store_name << "_" << i << "__' or '__" << store_name << "_" << j << "__' not defined\"\n\n";
+			file << "#error \"cmp '" << store_name << "' " << i << " and " << j << " failed. '__" << store_name << "_" << i << "__()' or '__" << store_name << "_" << j << "__()' not defined\"\n\n";
 			file << "#endif\n";
 			file.close();
 		}
+	}
+}
+
+/**
+ * 生成ppmp/defs/incl/for/pp_for_i.h系列文件
+ * 生成for循环迭代控制文件
+ * i从0到overload
+ */
+void ppmp::pp_for_gen(const std::string& incl_path, int overload, int n)
+{
+	if(overload < 0)
+	{
+		std::cerr << "overload must be >= 0" << std::endl;
+		return;
+	}
+	// 生成迭代计数器值固化的相关头文件
+	pp_store_gen(incl_path, "ppmp/defs/incl/for/", "_PPMP_DEFS_INCL_FOR_STOREPPFORI", "pp_expr_for_i", "pp_for_i", overload, n, true, false);
+	for(int i = 0; i < overload; ++i)
+	{
+		// 迭代逻辑主体
+		std::string path = incl_path + "ppmp/defs/incl/for/pp_for_" + std::to_string(i) + ".h";
+		std::ofstream file(path);
+		if(!file.is_open())
+		{
+			std::cerr << "failed to open file: " << path << std::endl;
+			continue;
+		}
+		file << "#if !defined(__pp_for_begin_" << i << "__)\n\n";
+		file << "\t#error \"file iterate failed. '__pp_for_begin_" << i << "__()' not defined\"\n\n";
+		file << "#elif !defined(__pp_for_end_" << i << "__)\n\n";
+		file << "\t#error \"file iterate failed. '__pp_for_end_" << i << "__()' not defined\"\n\n";
+		file << "#elif !defined(__pp_for_incl_file_" << i << "__)\n\n";
+		file << "\t#error \"file iterate failed. '__pp_for_incl_file_" << i << "__()' not defined\"\n\n";
+		file << "#else\n\n";
+		file << "\t#if !defined(__pp_for_i_" << i << "__)\n\n";
+		file << "\t\t#include <ppmp/defs/incl/for/store_pp_for_i.h>\n";
+		file << "\t\t#include <ppmp/incl/pp_incl.h>\n\n";
+		file << "\t\t#define __pp_expr_for_i__() __pp_for_begin_" << i << "__()\n";
+		file << "\t\t#include __store_pp_for_i__(" << i << ")\n\n";
+		file << "\t#endif\n\n";
+		file << "\t#if !defined(__pp_for_break_" << i << "__) && ((__pp_for_i__(" << i << ")) < (__pp_for_end_" << i << "__()))\n\n";
+		file << "\t\t#include __pp_for_incl_file_" << i << "__()\n\n";
+		file << "\t\t#define __pp_expr_for_i__() __pp_for_i__(" << i << ") + 1\n";
+		file << "\t\t#include __store_pp_for_i__(" << i << ")\n\n";
+		file << "\t\t#define __pp_incl_file__() <ppmp/defs/incl/for/pp_for_" << i << ".h>\n";
+		file << "\t\t#include __pp_incl__()\n\n";
+		file << "\t#else\n\n";
+		file << "\t\t#undef __pp_for_break_" << i << "__\n";
+		file << "\t\t#undef __pp_for_i_" << i << "__\n";
+		file << "\t\t#undef __pp_for_incl_file_" << i << "__\n";
+		file << "\t\t#undef __pp_for_end_" << i << "__\n";
+		file << "\t\t#undef __pp_for_begin_" << i << "__\n\n";
+		file << "\t#endif\n\n";
+		file << "#endif\n";
+		file.close();
+	}
+}
+
+/**
+ * 生成ppmp/defs/incl/while/pp_while_i.h系列文件
+ * 生成while循环迭代控制文件
+ * i从0到overload
+ */
+void ppmp::pp_while_gen(const std::string& incl_path, int overload, int n)
+{
+	if(overload < 0)
+	{
+		std::cerr << "overload must be >= 0" << std::endl;
+		return;
+	}
+	// 生成迭代计数器值固化的相关头文件
+	pp_store_gen(incl_path, "ppmp/defs/incl/while/", "_PPMP_DEFS_INCL_WHILE_STOREPPWHILEI", "pp_expr_while_i", "pp_while_i", overload, n, true, false);
+	for(int i = 0; i < overload; ++i)
+	{
+		std::string path = incl_path + "ppmp/defs/incl/while/pp_while_" + std::to_string(i) + ".h";
+		std::ofstream file(path);
+		if(!file.is_open())
+		{
+			std::cerr << "failed to open file: " << path << std::endl;
+			continue;
+		}
+		file << "#if !defined(__pp_while_cond_" << i << "__)\n\n";
+		file << "\t#error \"file iterate failed. '__pp_while_cond_" << i << "__()' not defined\"\n\n";
+		file << "#elif !defined(__pp_while_incl_file_" << i << "__)\n\n";
+		file << "\t#error \"file iterate failed. '__pp_while_incl_file_" << i << "__()' not defined\"\n\n";
+		file << "#else\n\n";
+		file << "\t#if !defined(__pp_while_i_" << i << "__)\n\n";
+		file << "\t\t#include <ppmp/defs/incl/while/store_pp_while_i.h>\n";
+		file << "\t\t#include <ppmp/incl/pp_incl.h>\n\n";
+		file << "\t\t#define __pp_expr_while_i__() 0\n";
+		file << "\t\t#include __store_pp_while_i__(" << i << ")\n\n";
+		file << "\t#endif\n\n";
+		file << "\t#if !defined(__pp_while_break_" << i << "__) && (__pp_while_cond_" << i << "__())\n\n";
+		file << "\t\t#include __pp_while_incl_file_" << i << "__()\n\n";
+		file << "\t\t#define __pp_expr_while_i__() __pp_while_i__(" << i << ") + 1\n";
+		file << "\t\t#include __store_pp_while_i__(" << i << ")\n\n";
+		file << "\t\t#define __pp_incl_file__() <ppmp/defs/incl/while/pp_while_" << i << ".h>\n";
+		file << "\t\t#include __pp_incl__()\n\n";
+		file << "\t#else\n\n";
+		file << "\t\t#undef __pp_while_break_" << i << "__\n";
+		file << "\t\t#undef __pp_while_i_" << i << "__\n";
+		file << "\t\t#undef __pp_while_incl_file_" << i << "__\n";
+		file << "\t\t#undef __pp_while_cond_" << i << "__\n\n";
+		file << "\t#endif\n\n";
+		file << "#endif\n";
+		file.close();
 	}
 }

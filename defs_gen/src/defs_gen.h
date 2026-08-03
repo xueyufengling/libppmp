@@ -12,7 +12,7 @@ void cat_noexp_gen(const std::string& incl_path, int n);
 void cat_front_noexp_gen(const std::string& incl_path, int n);
 
 // 生成 defs/full_scan.h
-void scan_gen(const std::string& incl_path, int alias_overload, int max_level = 16);
+void scan_gen(const std::string& incl_path, int overload, int max_level = 16);
 
 // 生成 defs/inc.h
 void inc_gen(const std::string& incl_path, int n);
@@ -39,25 +39,25 @@ void defer_gen(const std::string& incl_path, int pass);
 void num_equal_gen(const std::string& incl_path, int n);
 
 // 生成defs/repeat.h
-void repeat_gen(const std::string& incl_path, int alias_overload);
+void repeat_gen(const std::string& incl_path, int overload);
 
 // 生成 defs/for_each.h
-void for_each_gen(const std::string& incl_path, int alias_overload);
+void for_each_gen(const std::string& incl_path, int overload);
 
 // 生成 defs/for.h
-void for_gen(const std::string& incl_path, int alias_overload);
+void for_gen(const std::string& incl_path, int overload);
 
 // 生成 defs/while.h
-void while_gen(const std::string& incl_path, int alias_overload);
+void while_gen(const std::string& incl_path, int overload);
 
 // 生成 defs/for_recursive.h
-void for_recursive_gen(const std::string& incl_path, int alias_overload, int max_level);
+void for_recursive_gen(const std::string& incl_path, int overload, int max_level);
 
 // 生成 defs/while_recursive.h
-void while_recursive_gen(const std::string& incl_path, int alias_overload, int max_level);
+void while_recursive_gen(const std::string& incl_path, int overload, int max_level);
 
 // 生成defs/call_exp.h
-void call_exp_gen(const std::string& incl_path, int alias_overload);
+void call_exp_gen(const std::string& incl_path, int overload);
 }
 
 #endif//_PPMP_DEFSGEN
