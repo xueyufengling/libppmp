@@ -63,6 +63,27 @@
 	)
 #define __replace_at__(expand_id, idx, value, ...) __for_each__(expand_id)(__replace_at_op_intl__, __pack_list__(idx, value), __VA_ARGS__)
 
+/**
+ * @brief 判断list指定元素的个数，cmp_value必须定义了
+ * 		  #define __equal_def__<cmp_value>(x) x
+ * 		  辅助宏，否则比较相等始终返回0.
+ * 		  若不相等则展开为空，相等则展开为1，最后统计1的个数即可得到相等元素的个数
+ */
+#define __list_numof_op_intl__(i, begin_idx, end_idx, cmp_value, e)\
+	__if_intl__(__equal__(cmp_value, e))\
+	(\
+		__append_to_list_step__(i, end_idx, 1)\
+	)
+#define __list_numof__(expand_id, cmp_value, ...)\
+	__sizeof__(__for_each__(expand_id)(__list_numof_op_intl__, cmp_value, __VA_ARGS__))
+
+// 判断list是否有某个元素
+#define __list_contains__(expand_id, cmp_value, ...)\
+	__is_not_empty__(__for_each__(expand_id)(__list_numof_op_intl__, cmp_value, __VA_ARGS__))
+
+#define __list_not_contains__(expand_id, cmp_value, ...)\
+	__not_intl__(__list_contains__(expand_id, cmp_value, __VA_ARGS__))
+
 // 过滤并保留满足条件的元素形成列表
 /**
  * __filter_op_intl__()宏的变长参数列表为const_params, e
@@ -78,6 +99,14 @@
 #define __list_rm_empty_cond__(i, begin_idx, end_idx, ...) __not_intl__(__is_empty__(__VA_ARGS__))
 #define __list_rm_empty__(expand_id, ...)\
 	__filter__(expand_id, __list_rm_empty_cond__, , __VA_ARGS__)
+
+/**
+ * @brief 移除列表中与rm_list中元素相等的值
+ */
+#define __list_rm_eq_cond__(i, begin_idx, end_idx, expand_id2, packed_rm_list, e)\
+	__list_not_contains__(expand_id2, e, __unpack__(packed_rm_list))
+#define __list_rm_eq__(expand_id1, expand_id2, rm_list, ...)\
+	__filter__(expand_id1, __list_rm_eq_cond__, __pack_list__(expand_id2, __pack__(rm_list)), __VA_ARGS__)
 
 // 替换,为指定的分隔符
 #define __replace_delim_op_intl__(i, begin_idx, end_idx, delim, ...)\

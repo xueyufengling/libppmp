@@ -34,6 +34,7 @@ void incl_gen(std::string incl_path, const int max_op, int max_digit_num)
 	pp_store_op_gen(incl_path, max_op, max_digit_num);
 	pp_for_gen(incl_path, max_op, max_digit_num);
 	pp_while_gen(incl_path, max_op, max_digit_num);
+	pp_for_each_gen(incl_path, max_op, max_digit_num);
 }
 
 int main()

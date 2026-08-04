@@ -379,3 +379,62 @@ void ppmp::pp_while_gen(const std::string& incl_path, int overload, int n)
 		file.close();
 	}
 }
+
+/**
+ * 生成 ppmp/defs/incl/for_each/pp_for_each_i.h 系列文件
+ * 生成 for_each 循环迭代控制文件
+ * i 从 0 到 overload
+ */
+void ppmp::pp_for_each_gen(const std::string& incl_path, int overload, int n)
+{
+	if(overload < 0)
+	{
+		std::cerr << "overload must be >= 0" << std::endl;
+		return;
+	}
+	// 生成迭代计数器值固化的相关头文件
+	pp_store_gen(incl_path, "ppmp/defs/incl/for_each/", "_PPMP_DEFS_INCL_FOREACH_STOREPPFOREACHI", "pp_expr_for_each_i", "pp_for_each_i", overload, n, true, false);
+	for(int i = 0; i < overload; ++i)
+	{
+		std::string path = incl_path + "ppmp/defs/incl/for_each/pp_for_each_" + std::to_string(i) + ".h";
+		std::ofstream file(path);
+		if(!file.is_open())
+		{
+			std::cerr << "failed to open file: " << path << std::endl;
+			continue;
+		}
+		file << "#if !defined(__pp_for_each_list_" << i << "__)\n\n";
+		file << "\t#error \"file iterate failed. '__pp_for_each_list_" << i << "__()' not defined\"\n\n";
+		file << "#elif !defined(__pp_for_each_incl_file_" << i << "__)\n\n";
+		file << "\t#error \"file iterate failed. '__pp_for_each_incl_file_" << i << "__()' not defined\"\n\n";
+		file << "#else\n\n";
+		file << "\t#if !defined(__pp_for_each_i_" << i << "__)\n\n";
+		file << "\t\t#include <ppmp/defs/incl/for_each/store_pp_for_each_i.h>\n";
+		file << "\t\t#include <ppmp/base.h>\n";
+		file << "\t\t#include <ppmp/incl/pp_incl.h>\n\n";
+		file << "\t\t#define __pp_for_each_begin_" << i << "__() 0\n";
+		// __pp_for_each_end_<i>__()宏是延迟求值的，迭代过程中如果__pp_for_each_list_<i>__()改变，则将立即生效
+		file << "\t\t#define __pp_for_each_end_" << i << "__() __sizeof__(__pp_for_each_list_" << i << "__())\n\n";
+		file << "\t\t#define __pp_expr_for_each_i__() __pp_for_each_begin_" << i << "__()\n";
+		file << "\t\t#include __store_pp_for_each_i__(" << i << ")\n\n";
+		// 循环主体
+		file << "\t#endif\n\n";
+		file << "\t#if !defined(__pp_for_each_break_" << i << "__) && ((__pp_for_each_i__(" << i << ")) < (__pp_for_each_end_" << i << "__()))\n\n";
+		file << "\t\t#define __pp_for_each_elem_" << i << "__() __at_exp__(__pp_for_each_i__(" << i << "), __pp_for_each_list_" << i << "__())\n\n";
+		file << "\t\t#include __pp_for_each_incl_file_" << i << "__()\n\n";
+		file << "\t\t#undef __pp_for_each_elem_" << i << "__\n";
+		file << "\t\t#define __pp_expr_for_each_i__() __pp_for_each_i__(" << i << ") + 1\n";
+		file << "\t\t#include __store_pp_for_each_i__(" << i << ")\n\n";
+		file << "\t\t#define __pp_incl_file__() <ppmp/defs/incl/for_each/pp_for_each_" << i << ".h>\n";
+		file << "\t\t#include __pp_incl__()\n\n";
+		file << "\t#else\n\n";
+		file << "\t\t#undef __pp_for_each_break_" << i << "__\n";
+		file << "\t\t#undef __pp_for_each_i_" << i << "__\n";
+		file << "\t\t#undef __pp_for_each_incl_file_" << i << "__\n";
+		file << "\t\t#undef __pp_for_each_end_" << i << "__\n";
+		file << "\t\t#undef __pp_for_each_begin_" << i << "__\n\n";
+		file << "\t#endif\n\n";
+		file << "#endif\n";
+		file.close();
+	}
+}

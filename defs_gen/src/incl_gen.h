@@ -40,6 +40,7 @@ extern void pp_for_gen(const std::string& incl_path, int overload, int n = 19);
 // while循环
 extern void pp_while_gen(const std::string& incl_path, int overload, int n = 19);
 
+extern void pp_for_each_gen(const std::string& incl_path, int overload, int n = 19);
 }
 
 #endif//_PPMP_INCLGENGEN

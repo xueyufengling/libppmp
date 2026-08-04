@@ -91,6 +91,8 @@
 		__at_exp__(2, __comma__ __VA_ARGS__ (), 1, 0)\
 	)
 
+#define __is_not_empty__(...) __not_intl__(__is_empty__(__VA_ARGS__))
+
 /**
  * @brief 获取传入本宏的参数展开2次后的个数，最大支持__list_max_size__()个参数。
  * 		  __sizeof__()使用__at_exp__()中间层将__VA_ARGS__, __sizeof_placeholders__()整合为一个参数列表，否则__sizeof_placeholders__()将被视作单个参数而非展开的__list_max_size__()+1个参数
@@ -120,6 +122,16 @@
  */
 #define __list_rm_last__(...)\
 	__list_front__(__list_last_idx__(__VA_ARGS__))(__VA_ARGS__)
+
+/**
+ * @brief 如果传入的是__pack__()打包宏，则不作处理，否则将其打包
+ */
+#define __try_pack__(...)\
+	__if_intl__(__in_matched_paren__(__VA_ARGS__))\
+	(\
+		__pack_list__(__VA_ARGS__),\
+		__pack__(__VA_ARGS__)\
+	)
 
 /**
  * @brief 如果传入的是__pack__()打包宏，则展开包，否则不作处理（但会扫描一次）
