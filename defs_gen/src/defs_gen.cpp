@@ -545,8 +545,16 @@ void ppmp::repeat_gen(const std::string& incl_path, int overload)
 	file << "#define _PPMP_DEFS_REPEAT\n\n";
 	for(int i = 0; i <= overload; ++i)
 	{
+		// 注：__repeat_<i>_intl__()也需要每个重载都定义，否则嵌套时会重入。
+		file << "#define __repeat_" << i << "_intl__(i, count, expand_macro, ...)\\\n";
+		file << "\t__if_intl__(__not_equal__(i, __dec(count)))\\\n";
+		file << "\t(\\\n";
+		file << "\t\texpand_macro(i, count, __VA_ARGS__)\\\n";
+		file << "\t\t__pass_alias__(2, __alias_repeat_" << i << "_intl__)(__inc__(i), count, expand_macro, __VA_ARGS__)\\\n";
+		file << "\t)\n";
+		file << "#define __alias_repeat_" << i << "_intl__() __repeat_" << i << "_intl__\n";
 		file << "#define __repeat__" << i << "(count, expand_macro, ...) ";
-		file << "__full_scan__(" << i << ")(__repeat_intl__(0, count, expand_macro, __VA_ARGS__))\n";
+		file << "__full_scan__(" << i << ")(__repeat_" << i << "_intl__(0, count, expand_macro, __VA_ARGS__))\n";
 	}
 	file << "\n#endif\n";
 	file.close();
@@ -571,22 +579,26 @@ void ppmp::for_each_gen(const std::string& incl_path, int overload)
 		std::cerr << "failed to open file: " << path << std::endl;
 		return;
 	}
-
 	file << "#ifndef _PPMP_DEFS_FOREACH\n";
 	file << "#define _PPMP_DEFS_FOREACH\n\n";
-
 	for(int i = 0; i <= overload; ++i)
 	{
+		file << "#define __for_each_" << i << "_intl__(i, end_idx, expand_macro, const_params, e, ...)\\\n";
+		file << "\t__if_intl__(__not_equal__(i, end_idx))\\\n";
+		file << "\t(\\\n";
+		file << "\t\texpand_macro(i, 0, end_idx, const_params, e)\\\n";
+		file << "\t\t__pass_alias__(2, __alias_for_each_" << i << "_intl__)(__inc__(i), end_idx, expand_macro, __forward_deferred__(2)(const_params), __VA_ARGS__)\\\n";
+		file << "\t)\n";
+		file << "#define __alias_for_each_" << i << "_intl__() __for_each_" << i << "_intl__\n";
 		file << "#define __for_each__" << i << "(expand_macro, const_params, ...)\\\n";
 		file << "\t__if_apply_intl__(__not_equal__(__sizeof__(__VA_ARGS__), 0))\\\n";
 		file << "\t(\\\n";
 		file << "\t\t__clause__\\\n";
 		file << "\t\t(\\\n";
-		file << "\t\t\t__full_scan__(" << i << ")(__for_each_intl__(0, __sizeof__(__VA_ARGS__), expand_macro, __forward__(const_params), __VA_ARGS__))\\\n";
+		file << "\t\t\t__full_scan__(" << i << ")(__for_each_" << i << "_intl__(0, __sizeof__(__VA_ARGS__), expand_macro, __forward__(const_params), __VA_ARGS__))\\\n";
 		file << "\t\t)\\\n";
 		file << "\t)\n";
 	}
-
 	file << "\n#endif\n";
 	file.close();
 }
@@ -615,8 +627,15 @@ void ppmp::for_gen(const std::string& incl_path, int overload)
 	file << "#define _PPMP_DEFS_FOR\n\n";
 	for(int i = 0; i <= overload; ++i)
 	{
+		file << "#define __for_" << i << "_intl__(i, begin_idx, end_idx, expand_macro, const_params, ...)\\\n";
+		file << "\t__if_intl__(__not_equal__(i, end_idx))\\\n";
+		file << "\t(\\\n";
+		file << "\t\texpand_macro(i, begin_idx, end_idx, const_params, __VA_ARGS__)\\\n";
+		file << "\t\t__pass_alias__(2, __alias_for_" << i << "_intl__)(__inc__(i), begin_idx, end_idx, expand_macro, __forward_deferred__(2)(const_params), __VA_ARGS__)\\\n";
+		file << "\t)\n";
+		file << "#define __alias_for_" << i << "_intl__() __for_" << i << "_intl__\n";
 		file << "#define __for__" << i << "(begin_idx, end_idx, expand_macro, const_params, ...) ";
-		file << "__full_scan__(" << i << ")(__for_intl__(begin_idx, begin_idx, end_idx, expand_macro, __forward__(const_params), __VA_ARGS__))\n";
+		file << "__full_scan__(" << i << ")(__for_" << i << "_intl__(begin_idx, begin_idx, end_idx, expand_macro, __forward__(const_params), __VA_ARGS__))\n";
 	}
 	file << "\n#endif\n";
 	file.close();
@@ -646,8 +665,15 @@ void ppmp::while_gen(const std::string& incl_path, int overload)
 	file << "#define _PPMP_DEFS_WHILE\n\n";
 	for(int i = 0; i <= overload; ++i)
 	{
+		file << "#define __while_" << i << "_intl__(i, cond_macro, cond_params, expand_macro, ...)\\\n";
+		file << "\t__if__(cond_macro(i, cond_params, __VA_ARGS__))\\\n";
+		file << "\t(\\\n";
+		file << "\t\texpand_macro(i, cond_params, __VA_ARGS__)\\\n";
+		file << "\t\t__pass_alias__(2, __alias_while_" << i << "_intl__)(__inc__(i), cond_macro, __forward_deferred__(2)(cond_params), expand_macro, __VA_ARGS__)\\\n";
+		file << "\t)\n";
+		file << "#define __alias_while_" << i << "_intl__() __while_" << i << "_intl__\n";
 		file << "#define __while__" << i << "(cond_macro, cond_params, expand_macro, ...) ";
-		file << "__full_scan__(" << i << ")(__while_intl__(0, cond_macro, __forward__(cond_params), expand_macro, __VA_ARGS__))\n";
+		file << "__full_scan__(" << i << ")(__while_" << i << "_intl__(0, cond_macro, __forward__(cond_params), expand_macro, __VA_ARGS__))\n";
 	}
 	file << "\n#endif\n";
 	file.close();

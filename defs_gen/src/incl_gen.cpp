@@ -79,7 +79,9 @@ void ppmp::pp_store_digit_gen(const std::string& incl_path, const std::string& f
 				{
 					file << "#if " << div_expr << " % 10 == 0\n";
 					file << "#if " << div_expr << " >= 10\n";
-					file << "#undef __" << store_name << "_" << st << "_" << i << "__\n"; // 必须在使用完div_expr后才能undef原宏，防止惰性求值依赖__<store_name>_<st>_<i>__()的旧值
+					// 宏表达式总是延迟求值的，只在#if指令中，依据展开链的中间宏的当前定义求得一个值
+					// 必须在使用完div_expr后才能undef原宏，防止惰性求值依赖__<store_name>_<st>_<i>__()的旧值
+					file << "#undef __" << store_name << "_" << st << "_" << i << "__\n";
 					file << "#define __" << store_name << "_" << st << "_" << i << "__() 0\n";
 					file << "#else\n"; // 若高位无非0有效数字，则当前的0定义为空
 					file << "#undef __" << store_name << "_" << st << "_" << i << "__\n";

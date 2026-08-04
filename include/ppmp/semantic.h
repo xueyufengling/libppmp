@@ -31,16 +31,23 @@
 /**
  * @brief 定义数组，数组元素有宏展开
  */
-#define __exp_array_def__(expand_id, elem_type, arr_name, expand_macro, const_params, ...)\
+// elem_macro()变长参数列表为const_params, elem
+#define __exp_array_def_elem__(i, begin_idx, end_idx, elem_type, elem_macro, ...)\
+	(elem_type)(elem_macro(i, begin_idx, end_idx, __VA_ARGS__)),
+
+#define __exp_array_def__(expand_id, elem_type, arr_name, elem_macro, const_params, ...)\
 	elem_type arr_name[__sizeof__(__VA_ARGS__)] =\
 	{\
-		__for_each__(expand_id)(expand_macro, __pack_list__(const_params), __VA_ARGS__)\
+		__for_each__(expand_id)(__exp_array_def_elem__, __pack_list__(elem_type, elem_macro, const_params), __VA_ARGS__)\
 	};
 
-#define __array_def__(elem_type, arr_name, ...)\
+#define __array_def_elem__(i, begin_idx, end_idx, elem_type, elem)\
+	(elem_type)(elem),
+
+#define __array_def__(expand_id, elem_type, arr_name, ...)\
 	elem_type arr_name[__sizeof__(__VA_ARGS__)] =\
 	{\
-		__VA_ARGS__\
+		__for_each__(expand_id)(__array_def_elem__, elem_type, __VA_ARGS__)\
 	};
 
 #endif//_PPMP_SEMANTIC
