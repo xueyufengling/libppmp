@@ -17,37 +17,40 @@
  * @brief 定义枚举，枚举元素为enum_name_xxx，并且具有enum_name_num统计枚举个数。
  * 		  type为空时，使用默认类型
  */
-#define __enum_def_op__(i, begin_idx, end_idx, enum_name, e) __cat__(3, enum_name, _, e),
+#define __enum_def_elem__(enum_name, e) __cat__(3, enum_name, _, e)
+#define __enum_def_elem_num__(enum_name) __cat__(2, enum_name, _num)
 
-#define __enum_def_names__(expand_id, enum_name, ...)\
-	__for_each__(expand_id)(__enum_def_op__, enum_name, __VA_ARGS__) __cat__(2, enum_name, _num)
+#define __enum_def_elem_op__(i, begin_idx, end_idx, enum_name, e) __enum_def_elem__(enum_name, e),
+
+#define __enum_def_elems__(expand_id, enum_name, ...)\
+	__for_each__(expand_id)(__enum_def_elem_op__, enum_name, __VA_ARGS__) __enum_def_elem_num__(enum_name)
 
 #define __enum_def__(expand_id, enum_name, type, ...)\
 	enum enum_name __if_intl__(__not_intl__(__is_empty__(type)))(: type)\
 	{\
-		__enum_def_names__(expand_id, enum_name, __VA_ARGS__)\
+		__enum_def_elems__(expand_id, enum_name, __VA_ARGS__)\
 	};
 
 /**
  * @brief 定义数组，数组元素有宏展开
  */
 // elem_macro()变长参数列表为const_params, elem
-#define __exp_array_def_elem__(i, begin_idx, end_idx, elem_type, elem_macro, ...)\
+#define __exp_array_def_elem_op__(i, begin_idx, end_idx, elem_type, elem_macro, ...)\
 	(elem_type)(elem_macro(i, begin_idx, end_idx, __VA_ARGS__)),
 
 #define __exp_array_def__(expand_id, elem_type, arr_name, elem_macro, const_params, ...)\
 	elem_type arr_name[__sizeof__(__VA_ARGS__)] =\
 	{\
-		__for_each__(expand_id)(__exp_array_def_elem__, __pack_list__(elem_type, elem_macro, const_params), __VA_ARGS__)\
+		__for_each__(expand_id)(__exp_array_def_elem_op__, __pack_list__(elem_type, elem_macro, const_params), __VA_ARGS__)\
 	};
 
-#define __array_def_elem__(i, begin_idx, end_idx, elem_type, elem)\
+#define __array_def_elem_op__(i, begin_idx, end_idx, elem_type, elem)\
 	(elem_type)(elem),
 
 #define __array_def__(expand_id, elem_type, arr_name, ...)\
 	elem_type arr_name[__sizeof__(__VA_ARGS__)] =\
 	{\
-		__for_each__(expand_id)(__array_def_elem__, elem_type, __VA_ARGS__)\
+		__for_each__(expand_id)(__array_def_elem_op__, elem_type, __VA_ARGS__)\
 	};
 
 #endif//_PPMP_SEMANTIC

@@ -24,11 +24,11 @@
 
 	#if !defined(__pp_for_each_break_14__) && ((__pp_for_each_i__(14)) < (__pp_for_each_end_14__()))
 
-		#define __pp_for_each_elem_14__() __at_exp__(__pp_for_each_i__(14), __pp_for_each_list_14__())
+		#define __pp_for_each_item_14__() __at_exp__(__pp_for_each_i__(14), __pp_for_each_list_14__())
 
 		#include __pp_for_each_incl_file_14__()
 
-		#undef __pp_for_each_elem_14__
+		#undef __pp_for_each_item_14__
 		#define __pp_expr_for_each_i__() __pp_for_each_i__(14) + 1
 		#include __store_pp_for_each_i__(14)
 

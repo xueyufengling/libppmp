@@ -420,9 +420,9 @@ void ppmp::pp_for_each_gen(const std::string& incl_path, int overload, int n)
 		// 循环主体
 		file << "\t#endif\n\n";
 		file << "\t#if !defined(__pp_for_each_break_" << i << "__) && ((__pp_for_each_i__(" << i << ")) < (__pp_for_each_end_" << i << "__()))\n\n";
-		file << "\t\t#define __pp_for_each_elem_" << i << "__() __at_exp__(__pp_for_each_i__(" << i << "), __pp_for_each_list_" << i << "__())\n\n";
+		file << "\t\t#define __pp_for_each_item_" << i << "__() __at_exp__(__pp_for_each_i__(" << i << "), __pp_for_each_list_" << i << "__())\n\n";
 		file << "\t\t#include __pp_for_each_incl_file_" << i << "__()\n\n";
-		file << "\t\t#undef __pp_for_each_elem_" << i << "__\n";
+		file << "\t\t#undef __pp_for_each_item_" << i << "__\n";
 		file << "\t\t#define __pp_expr_for_each_i__() __pp_for_each_i__(" << i << ") + 1\n";
 		file << "\t\t#include __store_pp_for_each_i__(" << i << ")\n\n";
 		file << "\t\t#define __pp_incl_file__() <ppmp/defs/incl/for_each/pp_for_each_" << i << ".h>\n";
