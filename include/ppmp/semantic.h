@@ -1,7 +1,9 @@
 #ifndef _PPMP_SEMANTIC
 #define _PPMP_SEMANTIC
 
-#include <ppmp/loop.h>
+#include "intl/cat.h"
+
+#include "loop.h"
 
 /**
  * @brief 在.cpp编译单元内定义动态初始化代码
@@ -17,8 +19,8 @@
  * @brief 定义枚举，枚举元素为enum_name_xxx，并且具有enum_name_num统计枚举个数。
  * 		  type为空时，使用默认类型
  */
-#define __enum_def_elem__(enum_name, e) __cat__(3, enum_name, _, e)
-#define __enum_def_elem_num__(enum_name) __cat__(2, enum_name, _num)
+#define __enum_def_elem__(enum_name, e) __cat_3__(enum_name, _, e)
+#define __enum_def_elem_num__(enum_name) __cat_2__(enum_name, _num)
 
 #define __enum_def_elem_op__(i, begin_idx, end_idx, enum_name, e) __enum_def_elem__(enum_name, e),
 

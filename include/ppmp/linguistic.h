@@ -1,24 +1,15 @@
 #ifndef _PPMP_LINGUISTIC
 #define _PPMP_LINGUISTIC
 
-#include "base.h"
 #include "list_op_step.h"
+#include "list.h"
 #include "loop.h"
+#include "token.h"
+#include "str.h"
 
 /**
  * C/C++语法层的处理相关头文件
  */
-
-/**
- * @brief 提示编译期展开循环
- */
-#ifdef __GNUC__
-#define __loop_unroll__(n) __pragma__(GCC unroll n)
-#elif defined(__clang__)
-#define __loop_unroll__(n) __pragma__(unroll n)
-#else
-#define __loop_unroll__(n)
-#endif
 
 /**
  * @brief C++标准规定的实体，支持模板名称

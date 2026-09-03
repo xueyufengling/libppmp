@@ -26,6 +26,7 @@
 #else
 
 #include <ppmp/defs/incl/for_each/store_pp_for_each_i.h>
+#include <ppmp/cat.h>
 
 #include __store_pp_for_each_i_digit__(11, 0)
 #include __store_pp_for_each_i_digit__(11, 1)

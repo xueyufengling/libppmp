@@ -2,9 +2,10 @@
 #define _PPMP_GCCDEF
 
 #include "cc.h"
-#include "base.h"
 #include "list_op_step.h"
 #include "loop.h"
+#include "token.h"
+#include "list.h"
 
 // 统一使用GCC拓展语法，注意变量、函数名不能与本文件定义的宏名重合
 // 编译时的编译器必须与cc.h宏获取到的完全一致，否则非预期的宏替换会引发语法错误。

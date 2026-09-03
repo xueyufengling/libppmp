@@ -26,6 +26,7 @@
 #else
 
 #include <ppmp/defs/incl/while/store_pp_while_i.h>
+#include <ppmp/cat.h>
 
 #include __store_pp_while_i_digit__(8, 0)
 #include __store_pp_while_i_digit__(8, 1)

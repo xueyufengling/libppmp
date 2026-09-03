@@ -1,7 +1,7 @@
 #ifndef _PPMP_INCL_PPLOOP
 #define _PPMP_INCL_PPLOOP
 
-#include "../token.h"
+#include "../intl/cat.h"
 
 /**
  * @brief for循环。使用
@@ -16,7 +16,7 @@
  * 		  #define __pp_for_<overload>_break__
  * 		  可终止循环。
  */
-#define __pp_for__(overload) <ppmp/defs/incl/for/__cat__(2,pp_for_, overload).h>
+#define __pp_for__(overload) <ppmp/defs/incl/for/__cat_2__(pp_for_, overload).h>
 
 /**
  * @brief while循环。使用
@@ -29,9 +29,9 @@
  * 		  #define __pp_while_<overload>_break__
  * 		  可终止循环。
  */
-#define __pp_while__(overload) <ppmp/defs/incl/while/__cat__(2,while_for_, overload).h>
+#define __pp_while__(overload) <ppmp/defs/incl/while/__cat_2__(while_for_, overload).h>
 
-#define __pp_for_each_item__(overload) __cat__(3, __pp_for_each_item_, overload, __)()
+#define __pp_for_each_item__(overload) __cat_3__(__pp_for_each_item_, overload, __)()
 
 /**
  * @brief for-each循环。使用
@@ -45,6 +45,6 @@
  * 		  #define __pp_for_each_<overload>_break__
  * 		  可终止循环。
  */
-#define __pp_for_each__(overload) <ppmp/defs/incl/for_each/__cat__(2,pp_for_each_, overload).h>
+#define __pp_for_each__(overload) <ppmp/defs/incl/for_each/__cat_2__(pp_for_each_, overload).h>
 
 #endif//_PPMP_INCL_PPLOOP

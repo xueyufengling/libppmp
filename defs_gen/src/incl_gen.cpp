@@ -21,17 +21,17 @@ void ppmp::pp_store_header_gen(const std::string& incl_path, const std::string& 
 	}
 	file << "#ifndef " << file_header_prot << "\n";
 	file << "#define " << file_header_prot << "\n\n";
-	file << "#include <ppmp/token.h>\n\n";
+	file << "#include <ppmp/intl/cat.h>\n\n";
 	file << "#define __" << store_name << "_digit_max_num__(...) " << n << "\n";
 	file << "#define __" << store_name << "_digit_max_idx__(...) " << (n - 1) << "\n";
 	file << "#define __" << store_name << "_max_num__(...) " << max_st << "\n";
 	file << "#define __" << store_name << "_max_idx__(...) " << (max_st - 1) << "\n\n";
 	// 一位数字存取
-	file << "#define __store_" << store_name << "_digit__(st, n) <__cat__(5," << file_prefix << store_name << ", _, st, _, n).h>\n";
-	file << "#define __" << store_name << "_digit__(st, n) __cat__(5, __" << store_name << "_, st, _, n, __)()\n";
+	file << "#define __store_" << store_name << "_digit__(st, n) <__cat_5__(" << file_prefix << store_name << ", _, st, _, n).h>\n";
+	file << "#define __" << store_name << "_digit__(st, n) __cat_5__(__" << store_name << "_, st, _, n, __)()\n";
 	// 数字整体存取
-	file << "#define __store_" << store_name << "__(st) <__cat__(3," << file_prefix << store_name << ", _, st).h>\n";
-	file << "#define __" << store_name << "__(st) __cat__(3, __" << store_name << "_, st, __)()\n\n";
+	file << "#define __store_" << store_name << "__(st) <__cat_3__(" << file_prefix << store_name << ", _, st).h>\n";
+	file << "#define __" << store_name << "__(st) __cat_3__(__" << store_name << "_, st, __)()\n\n";
 	file << "#define __" << expr_name << "_support_auto_undef__() " << auto_undef << "\n";
 	file << "#define __" << expr_name << "_check_auto_undef__() " << gen_auto_undef << "\n\n";
 	file << "#endif";
@@ -154,7 +154,8 @@ void ppmp::pp_store_gen(const std::string& incl_path, const std::string& file_pr
 			file << "#define __" << store_name << "_" << st << "_" << j << "__()\n";
 		}
 		file << "\n#else\n\n";
-		file << "#include <" << file_prefix << "store_" << store_name << ".h>\n\n";
+		file << "#include <" << file_prefix << "store_" << store_name << ".h>\n";
+		file << "#include <ppmp/cat.h>\n\n";
 		for(int i = 0; i < n; ++i)
 		{
 			file << "#include __store_" << store_name << "_digit__(" << st << ", " << i << ")\n";
@@ -214,11 +215,11 @@ void ppmp::pp_store_cmp_gen(const std::string& incl_path, const std::string& fil
 	}
 	file << "#ifndef " << file_header_prot << "\n";
 	file << "#define " << file_header_prot << "\n\n";
-	file << "#include <ppmp/token.h>\n\n";
-	file << "#define __cmp_" << store_name << "__(st1, st2) <__cat__(5," << file_prefix << store_name << ", _cmp_, st1, _, st2).h>\n";
-	file << "#define __" << store_name << "_lt__(st1, st2) __cat__(5, __" << store_name << "_lt_, st1, _, st2, __)()\n";
-	file << "#define __" << store_name << "_eq__(st1, st2) __cat__(5, __" << store_name << "_eq_, st1, _, st2, __)()\n";
-	file << "#define __" << store_name << "_gt__(st1, st2) __cat__(5, __" << store_name << "_gt_, st1, _, st2, __)()\n\n";
+	file << "#include <ppmp/intl/cat.h>\n\n";
+	file << "#define __cmp_" << store_name << "__(st1, st2) <__cat_5__(" << file_prefix << store_name << ", _cmp_, st1, _, st2).h>\n";
+	file << "#define __" << store_name << "_lt__(st1, st2) __cat_5__( __" << store_name << "_lt_, st1, _, st2, __)()\n";
+	file << "#define __" << store_name << "_eq__(st1, st2) __cat_5__( __" << store_name << "_eq_, st1, _, st2, __)()\n";
+	file << "#define __" << store_name << "_gt__(st1, st2) __cat_5__( __" << store_name << "_gt_, st1, _, st2, __)()\n\n";
 	file << "#endif";
 	file.close();
 	std::string defs_file_prefix = incl_path + file_prefix + store_name;
@@ -410,7 +411,7 @@ void ppmp::pp_for_each_gen(const std::string& incl_path, int overload, int n)
 		file << "#else\n\n";
 		file << "\t#if !defined(__pp_for_each_i_" << i << "__)\n\n";
 		file << "\t\t#include <ppmp/defs/incl/for_each/store_pp_for_each_i.h>\n";
-		file << "\t\t#include <ppmp/base.h>\n";
+		file << "\t\t#include <ppmp/list.h>\n";
 		file << "\t\t#include <ppmp/incl/pp_incl.h>\n\n";
 		file << "\t\t#define __pp_for_each_begin_" << i << "__() 0\n";
 		// __pp_for_each_end_<i>__()宏是延迟求值的，迭代过程中如果__pp_for_each_list_<i>__()改变，则将立即生效

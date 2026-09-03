@@ -1,9 +1,11 @@
 #ifndef _PPMP_LISTOPSTEP
 #define _PPMP_LISTOPSTEP
 
-#include "base.h"
-#include "arith.h"
+#include "intl/if.h"
+
 #include "equal.h"
+#include "token.h"
+#include "list.h"
 
 /**
  * @brief 将元素添加到列表的步骤

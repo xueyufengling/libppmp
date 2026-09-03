@@ -1,6 +1,8 @@
 #ifndef _PPMP_BRAINFUCK_INTERPRETER
 #define _PPMP_BRAINFUCK_INTERPRETER
 
+#include <ppmp/cat.h>
+#include <ppmp/str.h>
 #include <ppmp/list_op.h>
 #include <ppmp/recursive_loop.h>
 

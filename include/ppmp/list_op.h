@@ -1,9 +1,15 @@
 #ifndef _PPMP_LISTOP
 #define _PPMP_LISTOP
 
-#include "base.h"
+#include "intl/cat.h"
+#include "intl/if.h"
+
 #include "list_op_step.h"
 #include "loop.h"
+#include "equal.h"
+#include "arith.h"
+#include "token.h"
+#include "scan.h"
 
 /**
  * 使用延迟展开的实现，循环中使用时注意expand_id必须不同，否则导致递归重入
@@ -29,7 +35,7 @@
 		__if_else_intl__(__not_equal__(params_num, 1))\
 		(\
 			__pass_alias__(3, __alias_cat_list_intl__)(__dec__(params_num), delim, __cat__(3, result, cat_list_param, delim), __VA_ARGS__),\
-			__cat__(2, result, cat_list_param)\
+			__cat_2__(result, cat_list_param)\
 		)\
 	)
 #define __alias_cat_list_intl__() __cat_list_intl__
@@ -148,7 +154,7 @@
 /**
  * @brief 为每个元素添加前缀
  */
-#define __prepend_prefix_op__(i, begin_idx, end_idx, prefix, e) __cat__(2, prefix, e),
+#define __prepend_prefix_op__(i, begin_idx, end_idx, prefix, e) __cat_2__(prefix, e),
 
 #define __prepend_prefix__(expand_id, prefix, ...)\
 	__strip_trailing_1_comma__(__for_each__(expand_id)(__prepend_prefix_op__, prefix, __VA_ARGS__))
@@ -156,7 +162,7 @@
 /**
  * @brief 为每个元素添加后缀
  */
-#define __apppend_suffix_op__(i, begin_idx, end_idx, suffix, e) __cat__(2, e, suffix),
+#define __apppend_suffix_op__(i, begin_idx, end_idx, suffix, e) __cat_2__(e, suffix),
 
 #define __apppend_suffix__(expand_id, suffix, ...)\
 	__strip_trailing_1_comma__(__for_each__(expand_id)(__apppend_suffix_op__, suffix, __VA_ARGS__))
