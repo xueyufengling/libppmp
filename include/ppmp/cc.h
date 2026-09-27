@@ -51,7 +51,7 @@
 
 #endif
 
-// ***** C/C++版本号 *****
+// ***** C/C++标准 *****
 
 #if defined(__STDC__) && (__STDC__ >= 1) && defined(__STDC_VERSION__)
 #define __std_c__ __STDC_VERSION__

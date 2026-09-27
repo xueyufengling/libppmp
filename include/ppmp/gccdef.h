@@ -22,6 +22,12 @@
 #define __msvc_attribute_expand_id__() 0
 #endif
 
+/**
+ * MSVC没有__PRETTY_FUNCTION__宏，而是使用__FUNCSIG__，包含完整函数签名（参数类型等）的字符串。
+ * 两者存在细微差别，__FUNCSIG__会包含调用约定，而__PRETTY_FUNCTION__通常不包含
+ */
+#define __PRETTY_FUNCTION__ __FUNCSIG__
+
 #define __asm__  __asm
 #define __restrict__ __restrict
 #define __thread __declspec(thread)

@@ -20,5 +20,6 @@
 #include "ppmp/if.h"
 #include "ppmp/list.h"
 #include "ppmp/loop.h"
+#include "ppmp/src_loc.h"
 
 #endif//_PPMP

@@ -80,6 +80,8 @@
 		__at_exp__(__list_max_size__(), __VA_ARGS__, __sizeof_placeholders__())\
 	)
 
+#define __sizeof_pack__(...) __sizeof__ __VA_ARGS__
+
 /**
  * @brief 列表末尾元素的索引
  */

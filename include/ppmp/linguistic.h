@@ -61,4 +61,33 @@
 #define __declaration_name_list__(expand_id, ...)\
 	__for_each__(expand_id)(__declaration_name_list_op__, , __VA_ARGS__)
 
+/**
+ * @brief 从操作数名称列表、算子列表来构建表达式
+ * 		  例如：
+ * 		  operators_list传入(, + ,)且参数列表为a, b
+ * 		  展开结果为a + b
+ * 		  operators_list传入(, ? , :,)且参数列表为a, b, c
+ * 		  展开结果为a ? b : c
+ */
+#define __construct_expr_op__(i, begin_idx, end_idx, operators_list, operand)\
+	__at_exp__(i, __unpack__(operators_list)) operand
+#define __construct_expr__(expand_id, operators_list, ...)\
+	__for_each__(expand_id)(__construct_expr_op__, operators_list, __VA_ARGS__) __at_exp__(__sizeof__(__VA_ARGS__), __unpack__(operators_list))
+
+/**
+ * @brief 将类型列表...组成的列表拆分为type0 prefix0, type1 prefix1...形式的列表
+ */
+#define __construct_declaration_list_op__(i, begin_idx, end_idx, prefix, type)\
+	__append_to_list_step__(i, end_idx, type __cat_2__(prefix, i))
+#define __construct_declaration_list__(expand_id, prefix, ...)\
+	__for_each__(expand_id)(__construct_declaration_list_op__, prefix, __VA_ARGS__)
+
+/**
+ * @brief 生成prefix(begin_idx), prefix(begin_idx+1), ..., prefix(end_idx-1)形式的列表
+ */
+#define __construct_name_list_op__(i, begin_idx, end_idx, prefix, ...)\
+	__append_to_list_step__(i, end_idx, __cat_2__(prefix, i))
+#define __construct_name_list__(expand_id, begin_idx, end_idx, prefix)\
+	__for__(expand_id)(begin_idx, end_idx, __construct_name_list_op__, prefix,)
+
 #endif//_PPMP_LINGUISTIC
